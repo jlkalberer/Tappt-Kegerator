@@ -12,17 +12,24 @@
 #define AOK "AOK"
 #endif
 
-// Used to access the Tappd REST service
-class RestClient
+namespace KegServer
 {
-public:
-	//
-	RestClient(WiflyClass *wifly, const char *restUrl);
-	bool Request(RestRequest &request);
-private:
-	const char* port;
-	const char* restUrl;
-	WiflyClass* wifly;
-};
+	// A basic client for making rest requests.
+	class RestClient
+	{
+	public:
+		// The constructor which takes in a wifly instance and the endpoint of the service.
+		RestClient(WiflyClass *wifly, const char *restUrl);
 
+		// Make a request
+		bool Request(RestRequest &request);
+	private:
+		// The port to send the request through.
+		const char* port;
+		// The endpoint of the rest call.
+		const char* restUrl;
+		// The wifly instance for making the request through the hardware.
+		WiflyClass* wifly;
+	};
+}
 #endif

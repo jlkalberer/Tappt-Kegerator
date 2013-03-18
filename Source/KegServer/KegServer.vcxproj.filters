@@ -44,5 +44,8 @@
     <ClCompile Include="RestClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RestRequest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

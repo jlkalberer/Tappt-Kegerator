@@ -1,5 +1,7 @@
 #include "RestClient.h"
 
+using namespace KegServer;
+
 RestClient::RestClient(WiflyClass *wifly, const char *restUrl)
 {
 	this->port = "80"; // This could change when we use SSL

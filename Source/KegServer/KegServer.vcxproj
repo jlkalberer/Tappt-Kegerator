@@ -43,8 +43,8 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Dev\arduino-1.0.4\hardware\arduino\cores\arduino;C:\Dev\arduino-1.0.4\hardware\arduino\variants\standard;C:\Dev\Mine\Keg\KegServer\libraries\SoftwareSerial;C:\Dev\Mine\Keg\KegServer\libraries\SoftwareSerial\utility;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>C:\Dev\Mine\Keg\KegServer\KegServer\Visual Micro\.KegServer.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>C:\Dev\arduino-1.0.4\hardware\arduino\cores\arduino;C:\Dev\arduino-1.0.4\hardware\arduino\variants\standard;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial\utility;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>C:\Dev\Mine\KegServer\Source\KegServer\Visual Micro\.KegServer.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>ARDUINO=104;__AVR_ATmega328P__;F_CPU=16000000L;__AVR__;__cplusplus;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RestClient.cpp" />
+    <ClCompile Include="RestRequest.cpp" />
     <ClCompile Include="Wifly.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
