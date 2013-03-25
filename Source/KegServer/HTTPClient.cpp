@@ -318,66 +318,63 @@ int HttpClient::responseStatusCode()
 		while ((c != '\n') && 
 			( (millis() - timeoutStart) < kHttpResponseTimeout ))
 		{
-			if (available())
+			
+			c = read();
+			if (c < 0)
 			{
-				c = read();
-				if (c != -1)
+				continue;
+			}
+
+			if (c != -1)
+			{
+				switch(iState)
 				{
-					switch(iState)
+				case eRequestSent:
+					// We haven't reached the status code yet
+					if ( (*statusPtr == '*') || (*statusPtr == c) )
 					{
-					case eRequestSent:
-						// We haven't reached the status code yet
-						if ( (*statusPtr == '*') || (*statusPtr == c) )
+						// This character matches, just move along
+						statusPtr++;
+						if (*statusPtr == '\0')
 						{
-							// This character matches, just move along
-							statusPtr++;
-							if (*statusPtr == '\0')
-							{
-								// We've reached the end of the prefix
-								iState = eReadingStatusCode;
-							}
+							// We've reached the end of the prefix
+							iState = eReadingStatusCode;
 						}
-						else
-						{
-							return HTTP_ERROR_INVALID_RESPONSE;
-						}
-						break;
-					case eReadingStatusCode:
-						if (isdigit(c))
-						{
-							// This assumes we won't get more than the 3 digits we
-							// want
-							iStatusCode = iStatusCode*10 + (c - '0');
-						}
-						else
-						{
-							// We've reached the end of the status code
-							// We could sanity check it here or double-check for ' '
-							// rather than anything else, but let's be lenient
-							iState = eStatusCodeRead;
-						}
-						break;
-					case eStatusCodeRead:
-						// We're just waiting for the end of the line now
-						break;
-					};
-					// We read something, reset the timeout counter
-					timeoutStart = millis();
-				}
+					}
+					else
+					{
+						return HTTP_ERROR_INVALID_RESPONSE;
+					}
+					break;
+				case eReadingStatusCode:
+					if (isdigit(c))
+					{
+						// This assumes we won't get more than the 3 digits we
+						// want
+						iStatusCode = iStatusCode*10 + (c - '0');
+					}
+					else
+					{
+						// We've reached the end of the status code
+						// We could sanity check it here or double-check for ' '
+						// rather than anything else, but let's be lenient
+						iState = eStatusCodeRead;
+					}
+					break;
+				case eStatusCodeRead:
+					// We're just waiting for the end of the line now
+					break;
+				};
+				// We read something, reset the timeout counter
+				timeoutStart = millis();
 			}
-			else
-			{
-				// We haven't got any data, so let's pause to allow some to
-				// arrive
-				delay(kHttpWaitForDataDelay);
-			}
-		}
-		if ( (c == '\n') && (iStatusCode < 200) )
-		{
-			// We've reached the end of an informational status line
-			c = '\0'; // Clear c so we'll go back into the data reading loop
-		}
 	}
+	if ( (c == '\n') && (iStatusCode < 200) )
+	{
+		// We've reached the end of an informational status line
+		c = '\0'; // Clear c so we'll go back into the data reading loop
+	}
+}
 	// If we've read a status code successfully but it's informational (1xx)
 	// loop back to the start
 	while ( (iState == eStatusCodeRead) && (iStatusCode < 200) );
@@ -405,14 +402,20 @@ int HttpClient::skipResponseHeaders()
 	// Just keep reading until we finish reading the headers or time out
 	unsigned long timeoutStart = millis();
 	// Whilst we haven't timed out & haven't reached the end of the headers
+	int buffer[256];
+	int i = 0;
 	while ((!endOfHeadersReached()) && 
            ( (millis() - timeoutStart) < kHttpResponseTimeout ))
 	{
-		if (available())
+		int c = readHeader();
+		
+		if (c >= 0)
 		{
-			(void)readHeader();
+			buffer[i] = c;
+			i += 1;
 			// We read something, reset the timeout counter
 			timeoutStart = millis();
+		
 		}
 		else
 		{
@@ -421,6 +424,9 @@ int HttpClient::skipResponseHeaders()
 			delay(kHttpWaitForDataDelay);
 		}
 	}
+	Serial.print("word\r\n");
+	Serial.print((char*)buffer);
+
 	if (endOfHeadersReached())
 	{
 		// Success
@@ -458,9 +464,9 @@ int HttpClient::read()
 	}
 #else
 	int ret = iClient->read();
-	Serial.print((char)ret);
+	
 	if (ret >= 0)
-	{
+	{		
 		if (endOfHeadersReached() && iContentLength > 0)
 		{
 			// We're outputting the body now and we've seen a Content-Length header
@@ -490,7 +496,7 @@ int HttpClient::read(char *buf, size_t size)
 int HttpClient::readHeader()
 {
 	char c = read();
-	
+
 	if (endOfHeadersReached())
 	{
 		// We've passed the headers, but rather than return an error, we'll just

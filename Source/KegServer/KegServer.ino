@@ -63,11 +63,6 @@ void loop()
 
 	HttpClient http(wifly);
 
-	if (!http.available())
-	{
-		return;
-	}
-
 	err = http.get(kHostname, kPath);
 
 	if (err == 0)
@@ -83,11 +78,11 @@ void loop()
 			// Usually you'd check that the response code is 200 or a
 			// similar "success" code (200-299) before carrying on,
 			// but we'll print out whatever response we get
-			char get;
+			/*char get;
 			while (wifly.receive((uint8_t *)&get, 1, 1000) == 1) {
 				Serial.print(get);
 			}
-			return;
+			while(1);*/
 
 			err = http.skipResponseHeaders();
 			if (err >= 0)
@@ -102,12 +97,13 @@ void loop()
 				unsigned long timeoutStart = millis();
 				char c;
 				// Whilst we haven't timed out & haven't reached the end of the body
-				while ( (http.connected() || http.available()) &&
+				while ( http.connected() &&
 					((millis() - timeoutStart) < kNetworkTimeout) )
 				{
-					if (http.available())
+					c = http.read();
+					
+					if (c >= 0)
 					{
-						c = http.read();
 						// Print out this character
 						Serial.print(c);
 

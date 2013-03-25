@@ -357,7 +357,7 @@ public:
 	virtual size_t write(uint8_t aByte) { if (iState < eRequestSent) { finishHeaders(); }; return iClient-> write(aByte); };
 	virtual size_t write(const uint8_t *aBuffer, size_t aSize) { if (iState < eRequestSent) { finishHeaders(); }; return iClient->write(aBuffer, aSize); };
 	// Inherited from Stream
-	virtual int available() { return iClient->available(); };
+	//virtual int available() { return true; };
 	/** Read the next byte from the server.
 	@return Byte read or -1 if there are no bytes available.
 	*/
