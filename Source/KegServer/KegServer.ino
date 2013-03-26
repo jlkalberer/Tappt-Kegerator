@@ -111,12 +111,12 @@ void loop()
 						// We read something, reset the timeout counter
 						timeoutStart = millis();
 					}
-					else
-					{
-						// We haven't got any data, so let's pause to allow some to
-						// arrive
-						delay(kNetworkDelay);
-					}
+					//else
+					//{
+					//	// We haven't got any data, so let's pause to allow some to
+					//	// arrive
+					//	delay(kNetworkDelay);
+					//}
 				}
 			}
 			else

@@ -402,30 +402,26 @@ int HttpClient::skipResponseHeaders()
 	// Just keep reading until we finish reading the headers or time out
 	unsigned long timeoutStart = millis();
 	// Whilst we haven't timed out & haven't reached the end of the headers
-	int buffer[256];
-	int i = 0;
 	while ((!endOfHeadersReached()) && 
            ( (millis() - timeoutStart) < kHttpResponseTimeout ))
 	{
 		int c = readHeader();
-		
+		//SoftwareSerial::overflow()
 		if (c >= 0)
 		{
-			buffer[i] = c;
-			i += 1;
+			Serial.print((char)c);
 			// We read something, reset the timeout counter
 			timeoutStart = millis();
-		
 		}
 		else
 		{
-			// We haven't got any data, so let's pause to allow some to
-			// arrive
-			delay(kHttpWaitForDataDelay);
+		//	// We haven't got any data, so let's pause to allow some to
+		//	// arrive
+		//	delay(kHttpWaitForDataDelay);
 		}
 	}
 	Serial.print("word\r\n");
-	Serial.print((char*)buffer);
+	//Serial.print(buffer);
 
 	if (endOfHeadersReached())
 	{
@@ -465,14 +461,11 @@ int HttpClient::read()
 #else
 	int ret = iClient->read();
 	
-	if (ret >= 0)
+	if (ret >= 0 && endOfHeadersReached() && iContentLength > 0)
 	{		
-		if (endOfHeadersReached() && iContentLength > 0)
-		{
-			// We're outputting the body now and we've seen a Content-Length header
-			// So keep track of how many bytes are left
-			iBodyLengthConsumed++;
-		}
+		// We're outputting the body now and we've seen a Content-Length header
+		// So keep track of how many bytes are left
+		iBodyLengthConsumed++;
 	}
 	return ret;
 #endif
@@ -509,6 +502,7 @@ int HttpClient::readHeader()
 	switch(iState)
 	{
 	case eStatusCodeRead:
+		//Serial.print(*iContentLengthPtr);
 		// We're at the start of a line, or somewhere in the middle of reading
 		// the Content-Length prefix
 		if (*iContentLengthPtr == c)
@@ -524,8 +518,9 @@ int HttpClient::readHeader()
 				iContentLength = 0;
 			}
 		}
-		else if ((iContentLengthPtr == kContentLengthPrefix) && (c == '\r'))
+		else if ((iContentLengthPtr == kContentLengthPrefix))
 		{
+			Serial.print("****FOUND HEADER*****");
 			// We've found a '\r' at the start of a line, so this is probably
 			// the end of the headers
 			iState = eLineStartingCRFound;

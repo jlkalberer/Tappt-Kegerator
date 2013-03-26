@@ -43,7 +43,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Dev\arduino-1.0.4\hardware\arduino\cores\arduino;C:\Dev\arduino-1.0.4\hardware\arduino\variants\standard;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial\utility;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Dev\arduino-1.0.4\hardware\arduino\cores\arduino;C:\Dev\arduino-1.0.4\hardware\arduino\variants\standard;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial\utility;C:\Dev\arduino-1.0.4\libraries\WiFly;C:\Dev\arduino-1.0.4\libraries\WiFly\utility;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>C:\Dev\Mine\KegServer\Source\KegServer\Visual Micro\.KegServer.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>ARDUINO=104;__AVR_ATmega328P__;F_CPU=16000000L;__AVR__;__cplusplus;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -81,14 +81,10 @@
       <FileType>CppCode</FileType>
     </ClInclude>
     <ClInclude Include="Visual Micro\.KegServer.vsarduino.h" />
-    <ClInclude Include="WiFly.h">
-      <FileType>CppCode</FileType>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="b64.cpp" />
     <ClCompile Include="HTTPClient.cpp" />
-    <ClCompile Include="WiFly.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
