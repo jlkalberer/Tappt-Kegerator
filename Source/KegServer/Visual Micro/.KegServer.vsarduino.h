@@ -26,6 +26,7 @@ extern "C" void __cxa_pure_virtual() {}
 
 //already defined in arduno.h
 //already defined in arduno.h
+char* GetValue(jsmntok_t &token, uint8_t * buffer);
 
 #include "C:\Dev\arduino-1.0.4\hardware\arduino\variants\standard\pins_arduino.h" 
 #include "C:\Dev\arduino-1.0.4\hardware\arduino\cores\arduino\arduino.h"
@@ -35,3 +36,5 @@ extern "C" void __cxa_pure_virtual() {}
 #include "C:\Dev\Mine\KegServer\Source\KegServer\HTTPClient.h"
 #include "C:\Dev\Mine\KegServer\Source\KegServer\b64.cpp"
 #include "C:\Dev\Mine\KegServer\Source\KegServer\b64.h"
+#include "C:\Dev\Mine\KegServer\Source\KegServer\jsmn.c"
+#include "C:\Dev\Mine\KegServer\Source\KegServer\jsmn.h"

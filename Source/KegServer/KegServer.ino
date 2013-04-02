@@ -9,6 +9,7 @@
 #include <SoftwareSerial.h>
 #include <WiFly.h>
 #include "HttpClient.h"
+#include "jsmn.h"
 
 #define SSID      "casanova"
 #define KEY       "bitchhunter"
@@ -91,33 +92,58 @@ void loop()
 				Serial.print("Content length is: ");
 				Serial.println(bodyLen);
 				Serial.println();
-				Serial.println("Body returned follows:");
 
 				// Now we've got to the body, so we can print it out
 				unsigned long timeoutStart = millis();
 				char c;
-				// Whilst we haven't timed out & haven't reached the end of the body
-				while ( http.connected() &&
-					((millis() - timeoutStart) < kNetworkTimeout) )
-				{
-					c = http.read();
-					
-					if (c >= 0)
-					{
-						// Print out this character
-						Serial.print(c);
 
-						bodyLen--;
-						// We read something, reset the timeout counter
-						timeoutStart = millis();
-					}
-					//else
-					//{
-					//	// We haven't got any data, so let's pause to allow some to
-					//	// arrive
-					//	delay(kNetworkDelay);
-					//}
-				}
+				//uint8_t *body = new uint8_t[bodyLen];
+				uint8_t *body = new uint8_t[bodyLen];
+				memset((void*)body, 0, sizeof(uint8_t) * bodyLen);  // Get rid of any garbage so this will be read correctly
+				int i = 0;
+				
+				Serial.println("Body returned follows:");
+
+				http.read(body, sizeof(uint8_t) * bodyLen);
+				// Whilst we haven't timed out & haven't reached the end of the body
+				//while ( http.connected() &&
+				//	((millis() - timeoutStart) < kNetworkTimeout) )
+				//{
+				//	c = http.read();
+				//	
+				//	if (c >= 0)
+				//	{
+				//		// Print out this character
+				//		body[i] = c;
+
+				//		bodyLen--;
+				//		i++;
+				//		// We read something, reset the timeout counter
+				//		timeoutStart = millis();
+				//	}
+				//	//else
+				//	//{
+				//	//	// We haven't got any data, so let's pause to allow some to
+				//	//	// arrive
+				//	//	delay(kNetworkDelay);
+				//	//}
+				//}
+
+				Serial.write(body, bodyLen);
+
+				jsmntok_t tokens[10];
+				jsmn_parser parser;
+
+				jsmn_init(&parser);
+				jsmn_parse(&parser, (char*)body, tokens, 10);
+				
+				Serial.print("\r\n\r\n");
+				char * pr = GetValue(tokens[0], body);
+				Serial.println(tokens[0].size);
+				Serial.write((uint8_t*)pr, tokens[0].size);
+				//Serial.print(body[tokens[0].start]);
+				Serial.print("\r\n\r\n");
+				
 			}
 			else
 			{
@@ -144,3 +170,10 @@ void loop()
 	while(1);
 }
 
+char* GetValue(jsmntok_t &token, uint8_t * buffer)
+{
+	char * output = new char[token.size + 1];
+	strncpy(output, (char*)buffer + token.start, token.size);
+	output[token.size] = 0;
+	return output;
+}

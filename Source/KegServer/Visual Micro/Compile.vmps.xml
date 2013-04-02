@@ -8,7 +8,7 @@
     <VCCodeModel>
       <VCCodeMacros>
         <VCCodeMacro Name="ARDUINO" Value="104" />
-        <VCCodeMacro Name="b64_h" />
+        <VCCodeMacro Name="__JSMN_H_" />
       </VCCodeMacros>
     </VCCodeModel>
   </Program>
