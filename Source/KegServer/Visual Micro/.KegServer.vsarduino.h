@@ -36,5 +36,7 @@ char* GetValue(jsmntok_t &token, uint8_t * buffer);
 #include "C:\Dev\Mine\KegServer\Source\KegServer\HTTPClient.h"
 #include "C:\Dev\Mine\KegServer\Source\KegServer\b64.cpp"
 #include "C:\Dev\Mine\KegServer\Source\KegServer\b64.h"
-#include "C:\Dev\Mine\KegServer\Source\KegServer\jsmn.c"
+#include "C:\Dev\Mine\KegServer\Source\KegServer\jsmn.cpp"
 #include "C:\Dev\Mine\KegServer\Source\KegServer\jsmn.h"
+#include "C:\Dev\Mine\KegServer\Source\KegServer\json_arduino.cpp"
+#include "C:\Dev\Mine\KegServer\Source\KegServer\json_arduino.h"

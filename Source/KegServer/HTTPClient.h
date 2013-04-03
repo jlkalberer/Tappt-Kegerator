@@ -296,6 +296,7 @@ public:
     */
     void sendHeader(const char* aHeaderName, const int aHeaderValue);
 
+#ifdef BASICAUTH
     /** Send a basic authentication header.  This will encode the given username
       and password, and send them in suitable header line for doing Basic
       Authentication.
@@ -303,6 +304,7 @@ public:
       @param aPassword Password for the user aUser
     */
     void sendBasicAuth(const char* aUser, const char* aPassword);
+#endif 
 
     /** Finish sending the HTTP request.  This basically just sends the blank
       line to signify the end of the request

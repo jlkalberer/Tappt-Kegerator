@@ -16,7 +16,9 @@ typedef enum {
 	JSMN_PRIMITIVE = 0,
 	JSMN_OBJECT = 1,
 	JSMN_ARRAY = 2,
-	JSMN_STRING = 3
+	JSMN_STRING = 3,
+	JSMN_KEY = 4, // LALEE added this.
+	JSMN_VALUE = 5 // LALEE added this.
 } jsmntype_t;
 
 typedef enum {
@@ -41,6 +43,7 @@ typedef struct {
 	int start;
 	int end;
 	int size;
+	char *string; // LALEE added this.
 #ifdef JSMN_PARENT_LINKS
 	int parent;
 #endif

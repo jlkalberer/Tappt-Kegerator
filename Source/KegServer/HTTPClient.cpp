@@ -3,7 +3,9 @@
 // Released under Apache License, version 2.0
 
 #include "HttpClient.h"
+#ifdef BASICAUTH
 #include "b64.h"
+#endif
 #ifdef PROXY_ENABLED // currently disabled as introduces dependency on Dns.h in Ethernet
 #include <Dns.h>
 #endif
@@ -220,7 +222,7 @@ void HttpClient::sendHeader(const char* aHeaderName, const int aHeaderValue)
     iClient->print(": ");
     iClient->println(aHeaderValue);
 }
-
+#ifdef BASICAUTH
 void HttpClient::sendBasicAuth(const char* aUser, const char* aPassword)
 {
     // Send the initial part of this header line
@@ -269,7 +271,7 @@ void HttpClient::sendBasicAuth(const char* aUser, const char* aPassword)
     // And end the header we've sent
     iClient->println();
 }
-
+#endif
 void HttpClient::finishHeaders()
 {
     iClient->println();

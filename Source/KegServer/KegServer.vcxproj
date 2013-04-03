@@ -81,12 +81,14 @@
       <FileType>CppCode</FileType>
     </ClInclude>
     <ClInclude Include="jsmn.h" />
+    <ClInclude Include="json_arduino.h" />
     <ClInclude Include="Visual Micro\.KegServer.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="b64.cpp" />
     <ClCompile Include="HTTPClient.cpp" />
-    <ClCompile Include="jsmn.c" />
+    <ClCompile Include="jsmn.cpp" />
+    <ClCompile Include="json_arduino.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

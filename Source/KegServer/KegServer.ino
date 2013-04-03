@@ -9,14 +9,14 @@
 #include <SoftwareSerial.h>
 #include <WiFly.h>
 #include "HttpClient.h"
-#include "jsmn.h"
+#include "json_arduino.h"
 
 #define SSID      "casanova"
-#define KEY       "bitchhunter"
+#define PASSWORD       "bitchhunter"
 #define AUTH      WIFLY_AUTH_WPA2_PSK
 
 #define HTTP_GET_URL "httpbin.org"
-#define HTTP_GET_PATH "/get"
+#define HTTP_GET_PATH "/user-agent"
 #define HTTP_POST_URL "http://httpbin.org/post"
 #define HTTP_POST_DATA "Hello world!"
 
@@ -24,7 +24,7 @@
 const char kHostname[] = "httpbin.org";
 // Path to download (this is the bit after the hostname in the URL
 // that you want to download
-const char kPath[] = "/get";
+const char kPath[] = "/user-agent";
 
 #define LOGGING 1
 
@@ -44,7 +44,7 @@ void setup()
 
 	while (1) {
 		Serial.println("Try to join " SSID );
-		if (wifly.join(SSID, KEY, AUTH)) {
+		if (wifly.join(SSID, PASSWORD, AUTH)) {
 			Serial.println("Succeed to join " SSID);
 			wifly.clear();
 			break;
@@ -98,8 +98,9 @@ void loop()
 				char c;
 
 				//uint8_t *body = new uint8_t[bodyLen];
-				uint8_t *body = new uint8_t[bodyLen];
+				uint8_t *body = new uint8_t[bodyLen + 1];
 				memset((void*)body, 0, sizeof(uint8_t) * bodyLen);  // Get rid of any garbage so this will be read correctly
+				body[bodyLen] = '\0';
 				int i = 0;
 				
 				Serial.println("Body returned follows:");
@@ -131,18 +132,15 @@ void loop()
 
 				Serial.write(body, bodyLen);
 
-				jsmntok_t tokens[10];
-				jsmn_parser parser;
+				token_list_t *token_list = create_token_list(30);
+				json_to_token_list((char*)body, token_list);
 
-				jsmn_init(&parser);
-				jsmn_parse(&parser, (char*)body, tokens, 10);
+				Serial.print("Found Pairs: ");
+				Serial.println(token_list->count);
 				
-				Serial.print("\r\n\r\n");
-				char * pr = GetValue(tokens[0], body);
-				Serial.println(tokens[0].size);
-				Serial.write((uint8_t*)pr, tokens[0].size);
-				//Serial.print(body[tokens[0].start]);
-				Serial.print("\r\n\r\n");
+				char * out = json_get_value(token_list, "user-agent");
+				Serial.println("FOOBAR");
+				Serial.println(out);
 				
 			}
 			else
