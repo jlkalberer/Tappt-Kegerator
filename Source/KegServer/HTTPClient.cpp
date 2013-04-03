@@ -12,6 +12,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define MAX_HEADERS 10
+
 // Initialize constants
 const char* HttpClient::kUserAgent = "Arduino/2.0";
 const char* HttpClient::kGet = "GET";
@@ -287,6 +289,10 @@ void HttpClient::endRequest()
     }
     // else the end of headers has already been sent, so nothing to do here
 }
+float millis()
+{
+	return 0;
+}
 
 int HttpClient::responseStatusCode()
 {
@@ -430,7 +436,87 @@ int HttpClient::skipResponseHeaders()
         return HTTP_ERROR_TIMED_OUT;
     }
 }
+/*
+int HttpClient::parseHeaders()
+{
+	// TODO: remove this line - it's used 
+	this->iState = eRequestSent;
 
+	// First get the response code
+	int code = this->responseStatusCode();
+
+	char buffer[256];
+	memset(buffer, '\0', 256);
+	int index = 0;
+	int valueIndex = 0;
+	bool lookingForValue = false;
+	bool lookingForColon = true;
+
+    // Just keep reading until we finish reading the headers or time out
+    unsigned long timeoutStart = millis();
+    // Whilst we haven't timed out & haven't reached the end of the headers
+    while ((!endOfHeadersReached()) && 
+           ( (millis() - timeoutStart) < iHttpResponseTimeout ))
+    {
+        if (available())
+        {
+            char c = readHeader();
+
+			// Magical parsing of headers..
+			if (c == '\n')
+			{
+				Header h;
+				h.Key = new char[valueIndex];
+				h.Value = new char[index - valueIndex];
+				buffer[valueIndex - 1] = '\0';
+				strcpy(h.Key, buffer);
+				strcpy(h.Value, buffer + valueIndex);
+				memset(buffer, '\0', 256);
+				index = -1;
+				valueIndex = 0;
+				lookingForColon = true;
+			}
+			else if(c == ':' && lookingForColon)
+			{
+				lookingForValue = true;
+				buffer[index] = c;
+				lookingForColon = false;
+			}
+			else
+			{
+				if (lookingForValue && c != ' ')
+				{
+					index--; // Remove the space
+					valueIndex = index;
+					lookingForValue = false;
+				}
+				buffer[index] = c;
+			}
+
+			index++;
+
+            // We read something, reset the timeout counter
+            timeoutStart = millis();
+        }
+        //else
+        //{
+        //    // We haven't got any data, so let's pause to allow some to
+        //    // arrive
+        //    delay(kHttpWaitForDataDelay);
+        //}
+    }
+    if (endOfHeadersReached())
+    {
+        // Success
+        return HTTP_SUCCESS;
+    }
+    else
+    {
+        // We must've timed out
+        return HTTP_ERROR_TIMED_OUT;
+    }
+}
+*/
 bool HttpClient::endOfBodyReached()
 {
     if (endOfHeadersReached() && (contentLength() != kNoContentLengthHeader))
@@ -502,11 +588,11 @@ int HttpClient::readHeader()
     case eStatusCodeRead:
         // We're at the start of a line, or somewhere in the middle of reading
         // the Content-Length prefix
-        if (*iContentLengthPtr == c)
+        if (iContentLength != NULL && *iContentLengthPtr == c)
         {
             // This character matches, just move along
             iContentLengthPtr++;
-            if (*iContentLengthPtr == '\0')
+			if (*iContentLengthPtr == '\0')
             {
                 // We've reached the end of the prefix
                 iState = eReadingContentLength;
