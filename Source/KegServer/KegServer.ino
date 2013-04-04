@@ -8,8 +8,7 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <WiFly.h>
-#include "HttpClient.h"
-#include "json_arduino.h"
+#include "RestClient.h"
 
 #define SSID      "casanova"
 #define PASSWORD       "bitchhunter"
@@ -27,6 +26,8 @@ const char kHostname[] = "httpbin.org";
 const char kPath[] = "/user-agent";
 
 #define LOGGING 1
+#define KegeratorKey "Foobar 123"
+#define AuthCookie "9349796059CF2B7869AF447C62CD941BAE5B860D13C480D0E63D449D467417034EB6B21710CD23B9F8EE22FE41BD3AF6D20F844166EB3F345C0519D695FFA9CAC008E8946460482D2A1F46FBC557CE0649A290C6ECA143724F54F966ED5F8886"
 
 // Number of milliseconds to wait without receiving any data before we give up
 const int kNetworkTimeout = 30*1000;
@@ -60,6 +61,15 @@ void setup()
 
 void loop()
 {
+	RestClient r(wifly, "192.168.1.122");
+	r.Validate(KegeratorKey, AuthCookie);
+
+	while(1) {}
+}
+
+/*
+void loop()
+{
 	int err =0;
 
 	HttpClient http(wifly);
@@ -79,12 +89,7 @@ void loop()
 			// Usually you'd check that the response code is 200 or a
 			// similar "success" code (200-299) before carrying on,
 			// but we'll print out whatever response we get
-			/*char get;
-			while (wifly.receive((uint8_t *)&get, 1, 1000) == 1) {
-				Serial.print(get);
-			}
-			while(1);*/
-
+	
 			err = http.skipResponseHeaders();
 			if (err >= 0)
 			{
@@ -167,11 +172,4 @@ void loop()
 	// And just stop, now that we've tried a download
 	while(1);
 }
-
-char* GetValue(jsmntok_t &token, uint8_t * buffer)
-{
-	char * output = new char[token.size + 1];
-	strncpy(output, (char*)buffer + token.start, token.size);
-	output[token.size] = 0;
-	return output;
-}
+*/

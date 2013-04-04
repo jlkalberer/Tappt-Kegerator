@@ -289,10 +289,6 @@ void HttpClient::endRequest()
     }
     // else the end of headers has already been sent, so nothing to do here
 }
-float millis()
-{
-	return 0;
-}
 
 int HttpClient::responseStatusCode()
 {
@@ -588,7 +584,7 @@ int HttpClient::readHeader()
     case eStatusCodeRead:
         // We're at the start of a line, or somewhere in the middle of reading
         // the Content-Length prefix
-        if (iContentLength != NULL && *iContentLengthPtr == c)
+        if (*iContentLengthPtr == c)
         {
             // This character matches, just move along
             iContentLengthPtr++;

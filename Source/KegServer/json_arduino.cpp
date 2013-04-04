@@ -9,6 +9,9 @@
  */
 
 #include "json_arduino.h"
+#include <Arduino.h>
+#include <SoftwareSerial.h>
+#include "Debug.h"
 
 typedef enum {
 	KEY, VALUE
@@ -43,7 +46,11 @@ char* json_get_value(token_list_t *token_list, char *key) {
 	/* Token 0 is the JSMN_OBJECT representing entire structure. */
 	/* Since we expect Key/Value Pairs, the following (without checking key_token->type==JSMN_KEY) is sufficient. */
 	for (int i=1; i < token_list->count; i+=2) {
-		key_token = tokens + i;
+		key_token = &tokens[i];
+		Serial.write((uint8_t*)key_token->string, key_token->size);
+		DBG(strlen(key_token->string));
+		DBG("BLEH");
+		DBG(key_token->size);
 		if (strncmp(key,key_token->string,key_token->size)==0) {
 			return (tokens+(i+1))->string;
 		}
@@ -87,6 +94,8 @@ int json_to_token_list(char *json_string, token_list_t *token_list){
 		{
 			break;
 		}
+		DBG("TOKEN: ");
+		DBG(i);
 
 		switch (state) {
 			case KEY:
@@ -99,11 +108,12 @@ int json_to_token_list(char *json_string, token_list_t *token_list){
 				break;
 
 			case VALUE:
+				DBG("WTF");
 				/* LALEE: Upgrade this Token into a JSMN_VALUE */
 				t->type = JSMN_VALUE;
 				t->size = t->end - t->start;
 				t->string  = json_token_tostr(json_string, t);
-
+				
 				found_pairs++;
 
 				state = KEY;

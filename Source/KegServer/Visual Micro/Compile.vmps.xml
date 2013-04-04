@@ -8,7 +8,7 @@
     <VCCodeModel>
       <VCCodeMacros>
         <VCCodeMacro Name="ARDUINO" Value="104" />
-        <VCCodeMacro Name="__JSMN_H_" />
+        <VCCodeMacro Name="REST_CLIENT_H" />
       </VCCodeMacros>
     </VCCodeModel>
   </Program>
