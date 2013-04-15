@@ -47,18 +47,14 @@ char* json_get_value(token_list_t *token_list, char *key) {
 	/* Since we expect Key/Value Pairs, the following (without checking key_token->type==JSMN_KEY) is sufficient. */
 	for (int i=1; i < token_list->count; i+=2) {
 		key_token = &tokens[i];
-		Serial.write((uint8_t*)key_token->string, key_token->size);
-		DBG(strlen(key_token->string));
-		DBG("BLEH");
-		DBG(key_token->size);
-		if (strncmp(key,key_token->string,key_token->size)==0) {
+		if (strcmp(key,key_token->string)==0) {
 			return (tokens+(i+1))->string;
 		}
 	}
 	return NULL;
 }
 
-/* LALEE: json_token_tostr() was derived from git://github.com/alisdair/jsmn-example.git */
+/* LALEE: json_token++++_tostr() was derived from git://github.com/alisdair/jsmn-example.git */
 
 char * json_token_tostr(char *js, jsmntok_t *t) {
 	js[t->end] = '\0';
@@ -90,25 +86,17 @@ int json_to_token_list(char *json_string, token_list_t *token_list){
 	for (int i = 1; i < token_list->length ; i++) {
 		jsmntok_t *t = &tokens[i];
 
-		if (t->start < 0) 
-		{
-			break;
-		}
-		DBG("TOKEN: ");
-		DBG(i);
-
 		switch (state) {
 			case KEY:
 				/* LALEE: Upgrade this Token into a JSMN_KEY */
 				t->type = JSMN_KEY;
 				t->size = t->end - t->start;
 				t->string = json_token_tostr(json_string, t);
-
+				
 				state = VALUE;
 				break;
 
 			case VALUE:
-				DBG("WTF");
 				/* LALEE: Upgrade this Token into a JSMN_VALUE */
 				t->type = JSMN_VALUE;
 				t->size = t->end - t->start;

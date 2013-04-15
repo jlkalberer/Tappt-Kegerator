@@ -295,7 +295,6 @@ public:
       @param aHeaderValue Value for that header
     */
     void sendHeader(const char* aHeaderName, const int aHeaderValue);
-
 #ifdef BASICAUTH
     /** Send a basic authentication header.  This will encode the given username
       and password, and send them in suitable header line for doing Basic

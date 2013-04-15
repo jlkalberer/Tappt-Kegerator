@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <string.h>
 #include "jsmn.h"
 
 #ifndef __JSON_ARDUINO_H_

@@ -54,17 +54,15 @@ public:
 	void clear();
 
 	float version();
-//#ifdef DEBUG
+//#ifdef _DEBUG
 	size_t print(unsigned int, int = DEC);
 	size_t print(const Printable&);
 	size_t print(const char* val);
 	size_t println(const char* val);
 	size_t println(unsigned int, int = DEC);
 	size_t println(void);
-
-	//size_t write(uint8_t);
-	//size_t write(const uint8_t *aBuffer, size_t aSize);
 //#endif
+
 private:
 	static WiFly*  instance;
 

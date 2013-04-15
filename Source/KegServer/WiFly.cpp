@@ -15,7 +15,7 @@ WiFly::WiFly(uint8_t rx, uint8_t tx) : SoftwareSerial(rx, tx)
 	command_mode = false;
 	associated = false;
 }
-//#ifdef DEBUG
+//#ifdef _DEBUG
 size_t WiFly::print(unsigned int val, int dec)
 {
 	Serial.print(val);
@@ -47,18 +47,6 @@ size_t WiFly::println(void)
 	Serial.print("\r\n");
 	return SoftwareSerial::println();
 }
-/*
-size_t WiFly::write(uint8_t val)
-{
-	Serial.print((char)val);
-	return SoftwareSerial::write(val);
-}
-size_t WiFly::write(const uint8_t *aBuffer, size_t aSize)
-{
-	Serial.print((char*)aBuffer);
-	return SoftwareSerial::write(aSize);
-}
-*/
 //#endif
 
 boolean WiFly::reset()

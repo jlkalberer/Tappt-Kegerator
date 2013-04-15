@@ -1,13 +1,12 @@
 #include "RestClient.h"
 #include "Debug.h"
+#include "MemoryFree.h"
+
 
 #define Pour "/api/pour"
 
 // The kegerator communication key.
 #define KegeratorCommunicationKey "Kegerator-Communication-Key"
-
-/// The forms authentication cookie.
-#define FormsAuthenticationCookie ".ASPXAUTH"
 
 RestClient::RestClient(WiFly& wifly, const char* uri)
 	: client(wifly)
@@ -19,9 +18,6 @@ RestClient::RestClient(WiFly& wifly, const char* uri)
 
 void RestClient::Setup(const char* resource, const char* kegeratorKey, const char* authToken)
 {
-	char cookie[300];
-	sprintf(cookie, "Cookie: %s=%s", FormsAuthenticationCookie, authToken);
-
 	this->client.beginRequest();
 	int connectionStatus = this->client.post(uri, resource);
 	if (connectionStatus < 0) 
@@ -31,7 +27,10 @@ void RestClient::Setup(const char* resource, const char* kegeratorKey, const cha
 		return;
 	}
 	this->client.sendHeader(KegeratorCommunicationKey, kegeratorKey);
-	this->client.sendHeader(cookie);
+	this->client.sendHeader("Cookie", authToken);
+
+	//this->client.write((uint8_t*)"Cookie: .ASPXAUTH=", 18);
+	//this->client.write((uint8_t*)authToken, strlen(authToken));
 }
 
 void RestClient::GetJson()
@@ -41,8 +40,6 @@ void RestClient::GetJson()
 	// Something went crazy
 	if (code < 0)
 	{
-		DBG("Response Code Error:");
-		DBG(code);
 		return;
 	}
 	
@@ -51,8 +48,6 @@ void RestClient::GetJson()
 
 	if (headerValue < 0)
 	{
-		DBG("Header Value Error:");
-		DBG(headerValue);
 		return;
 	}
 
@@ -61,8 +56,6 @@ void RestClient::GetJson()
 	// Something went horribly wrong here..
 	if (contentLength <= 0)
 	{
-		DBG("Content Length Error:");
-		DBG(contentLength);
 		return;
 	}
 
@@ -72,26 +65,31 @@ void RestClient::GetJson()
 		release_token_list(this->token_list);
 	}
 
-	this->currentResponse = new uint8_t[contentLength + 1];
-	memset((void*)currentResponse, 0, sizeof(uint8_t) * contentLength);  // Get rid of any garbage so this will be read correctly
-	currentResponse[contentLength] = '\0';
+	contentLength++;
+
+	this->currentResponse = new uint8_t[contentLength];
+	memset((void*)currentResponse, '\0', contentLength);  // Get rid of any garbage so this will be read correctly
 	int i = 0;
+
+	this->client.read(currentResponse, contentLength);
 	
-	this->client.read(currentResponse, sizeof(uint8_t) * contentLength);
-
-	delay(500);
-	// do some json magic 
-
 	DBG((char*)currentResponse);
-	
-	token_list = create_token_list(30);
-	json_to_token_list((char*)currentResponse, token_list);
 
-	Serial.print("Found Pairs: ");
-	Serial.println(token_list->count);
-	char * out = json_get_value(token_list, "Message");
-	Serial.print("BLEH");
-	Serial.println(out);
+	// do some json magic 
+	token_list = create_token_list(9);
+	int tokenOutput = json_to_token_list((char*)currentResponse, token_list);
+	
+	char m[] = "Message";
+	char * out = json_get_value(token_list, m);
+
+	if (out != NULL) 
+	{
+		delete [] currentResponse;
+		currentResponse = NULL;
+		release_token_list(this->token_list);
+
+		this->token_list = NULL;
+	}
 }
 
 PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
@@ -103,4 +101,28 @@ PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
 	this->client.endRequest();
 
 	this->GetJson();
+
+	if (this->token_list == NULL)
+	{
+		return info;
+	}
+
+	char* temp = NULL;
+	
+	temp = json_get_value(this->token_list, "AvailableOunces");
+	if (temp != NULL)
+	{
+		info.AvailableOunces = atof(temp);
+	}
+
+	info.PourKey = json_get_value(this->token_list, "PourKey");
+	DBG(info.PourKey);
+
+	temp = json_get_value(this->token_list, "UniqueID");
+	if (temp != NULL)
+	{
+		info.UniqueID = atoi(temp);
+	}
+
+	return info;
 }

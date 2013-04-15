@@ -553,6 +553,7 @@ int HttpClient::read()
 
 int HttpClient::read(uint8_t *buf, size_t size)
 {
+	/*
     int ret =iClient->readBytes((char*)buf, size);
     if (endOfHeadersReached() && iContentLength > 0)
     {
@@ -563,7 +564,20 @@ int HttpClient::read(uint8_t *buf, size_t size)
             iBodyLengthConsumed += ret;
 	}
     }
-    return ret;
+	*/
+	int counter = 0;
+
+	while(!endOfBodyReached() && counter < size)
+	{
+		char c = this->read();
+		if (c > 0)
+		{
+			buf[counter] = c;
+			counter++;
+		}
+	}
+	
+    return 0;
 }
 
 int HttpClient::readHeader()

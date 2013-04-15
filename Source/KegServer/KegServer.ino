@@ -7,27 +7,17 @@
 
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-#include <WiFly.h>
+#include "WiFly.h"
 #include "RestClient.h"
+#include "Debug.h"
 
 #define SSID      "casanova"
 #define PASSWORD       "bitchhunter"
 #define AUTH      WIFLY_AUTH_WPA2_PSK
 
-#define HTTP_GET_URL "httpbin.org"
-#define HTTP_GET_PATH "/user-agent"
-#define HTTP_POST_URL "http://httpbin.org/post"
-#define HTTP_POST_DATA "Hello world!"
-
-// Name of the server we want to connect to
-const char kHostname[] = "httpbin.org";
-// Path to download (this is the bit after the hostname in the URL
-// that you want to download
-const char kPath[] = "/user-agent";
-
 #define LOGGING 1
 #define KegeratorKey "Foobar 123"
-#define AuthCookie "9349796059CF2B7869AF447C62CD941BAE5B860D13C480D0E63D449D467417034EB6B21710CD23B9F8EE22FE41BD3AF6D20F844166EB3F345C0519D695FFA9CAC008E8946460482D2A1F46FBC557CE0649A290C6ECA143724F54F966ED5F8886"
+#define AuthCookie ".ASPXAUTH=ED41F9813CC9F3787A846CC19F8BFD9FA5443E6E1DAA9EDDF638213E37166136AA287D1B5D4BB1A06EA1B53E59E18918CDCF98D9CF3B69752F77C99806059743EBBFC6E003E1CF810E6685A585434F618B5FC08E4D3504593F92CEC31DFC0660"
 
 // Number of milliseconds to wait without receiving any data before we give up
 const int kNetworkTimeout = 30*1000;
@@ -40,18 +30,18 @@ void setup()
 {
 	// initialize serial communications at 9600 bps:
 	Serial.begin(9600); 
-
+	
+	Memory();
+	
 	wifly.reset();
 
 	while (1) {
-		Serial.println("Try to join " SSID );
 		if (wifly.join(SSID, PASSWORD, AUTH)) {
 			Serial.println("Succeed to join " SSID);
 			wifly.clear();
 			break;
 		} else {
 			Serial.println("Failed to join " SSID);
-			Serial.println("Wait 1 second and try again...");
 			delay(1000);
 		}
 	}
