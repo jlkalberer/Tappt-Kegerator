@@ -20,7 +20,7 @@ public:
 	/**
 	*	Used to send the pour to the server.
 	**/
-	bool Pour(const char* kegeratorKey, const char* authToken, PourInfo info);
+	bool Pour(const char* kegeratorKey, const char* authToken, PourInfo& info);
 private:
 	/**
 	*	Setup the initial request by setting common values.
@@ -32,9 +32,11 @@ private:
 	**/
 	void GetJson();
 
+	void Cleanup();
+
 	HttpClient client;
 	const char* uri;
-	uint8_t* currentResponse;
+	uint8_t currentResponse[300];
 	token_list_t *token_list;
 };
 

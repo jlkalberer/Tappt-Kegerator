@@ -4,6 +4,9 @@
 
 WiFly* WiFly::instance;
 
+#define AOK "AOK"
+#define ERR "ERR"
+
 WiFly::WiFly(uint8_t rx, uint8_t tx) : SoftwareSerial(rx, tx)
 {
 	instance = this;
@@ -65,29 +68,29 @@ boolean WiFly::init()
 
 #if 0
 	// set time
-	result = result & sendCommand("set c t 20\r", "AOK");
+	result = result & sendCommand("set c t 20\r", AOK);
 
 	// set size
-	result = result & sendCommand("set c s 128\r", "AOK");
+	result = result & sendCommand("set c s 128\r", AOK);
 
 	// red led on when tcp connection active
-	result = result & sendCommand("set s i 0x40\r", "AOK");
+	result = result & sendCommand("set s i 0x40\r", AOK);
 
 	// no string sent to the tcp client
-	result = result & sendCommand("set c r 0\r", "AOK");
+	result = result & sendCommand("set c r 0\r", AOK);
 
 	// tcp protocol
-	result = result & sendCommand("set i p 2\r", "AOK");
+	result = result & sendCommand("set i p 2\r", AOK);
 
 	// tcp retry
-	result = result & sendCommand("set i f 0x7\r", "AOK");
+	result = result & sendCommand("set i f 0x7\r", AOK);
 	//no echo
-	result = result & sendCommand("set u m 1\r", "AOK");
+	result = result & sendCommand("set u m 1\r", AOK);
 	// no auto join
-	result = result & sendCommand("set w j 0\r", "AOK");
+	result = result & sendCommand("set w j 0\r", AOK);
 
 	// DHCP on
-	result = result & sendCommand("set i d 1\r", "AOK");
+	result = result & sendCommand("set i d 1\r", AOK);
 #endif
 
 	return result;
@@ -98,16 +101,16 @@ boolean WiFly::staticIP(const char *ip, const char *mask, const char *gateway)
 	boolean result = true;
 	char cmd[MAX_CMD_LEN];
 
-	result = sendCommand("set i d 0\r", "AOK");
+	result = sendCommand("set i d 0\r", AOK);
 
 	snprintf(cmd, MAX_CMD_LEN, "set i a %s\r", ip);
-	result = result & sendCommand(cmd, "AOK");
+	result = result & sendCommand(cmd, AOK);
 
 	snprintf(cmd, MAX_CMD_LEN, "set i n %s\r", mask);
-	result = result & sendCommand(cmd, "AOK");
+	result = result & sendCommand(cmd, AOK);
 
 	snprintf(cmd, MAX_CMD_LEN, "set i g %s\r", gateway);
-	result = result & sendCommand(cmd, "AOK");
+	result = result & sendCommand(cmd, AOK);
 
 	return result;
 }
@@ -118,11 +121,11 @@ boolean WiFly::join(const char *ssid, const char *phrase, int auth)
 
 	// ssid
 	snprintf(cmd, MAX_CMD_LEN, "set w s %s\r", ssid);
-	sendCommand(cmd, "AOK");
+	sendCommand(cmd, AOK);
 
 	//auth
 	snprintf(cmd, MAX_CMD_LEN, "set w a %d\r", auth);
-	sendCommand(cmd, "AOK");
+	sendCommand(cmd, AOK);
 
 	//key
 	if (auth != WIFLY_AUTH_OPEN) {
@@ -131,7 +134,7 @@ boolean WiFly::join(const char *ssid, const char *phrase, int auth)
 		else
 			snprintf(cmd, MAX_CMD_LEN, "set w p %s\r", phrase);
 
-		sendCommand(cmd, "AOK");
+		sendCommand(cmd, AOK);
 	}
 
 
@@ -159,12 +162,12 @@ boolean WiFly::connect(const char *host, uint16_t port, int timeout)
 {
 	char cmd[MAX_CMD_LEN];
 	snprintf(cmd, sizeof(cmd), "set d n %s\r", host);
-	sendCommand(cmd, "AOK");
+	sendCommand(cmd, AOK);
 	snprintf(cmd, sizeof(cmd), "set i r %d\r", port);
-	sendCommand(cmd, "AOK");
-	sendCommand("set i p 2\r", "AOK");
-	sendCommand("set i h 0\r", "AOK");
-	sendCommand("set c r 0\r", "AOK");
+	sendCommand(cmd, AOK);
+	sendCommand("set i p 2\r", AOK);
+	sendCommand("set i h 0\r", AOK);
+	sendCommand("set c r 0\r", AOK);
 	if (!sendCommand("open\r", "*OPEN*", timeout)) {
 		sendCommand("close\r");
 		clear();
@@ -178,12 +181,12 @@ boolean WiFly::connect(const IPAddress host, uint16_t port, int timeout)
 {
 	char cmd[MAX_CMD_LEN];
 	snprintf(cmd, sizeof(cmd), "set d n %s\r", host);
-	sendCommand(cmd, "AOK");
+	sendCommand(cmd, AOK);
 	snprintf(cmd, sizeof(cmd), "set i r %d\r", port);
-	sendCommand(cmd, "AOK");
-	sendCommand("set i p 2\r", "AOK");
-	sendCommand("set i h 0\r", "AOK");
-	sendCommand("set c r 0\r", "AOK");
+	sendCommand(cmd, AOK);
+	sendCommand("set i p 2\r", AOK);
+	sendCommand("set i h 0\r", AOK);
+	sendCommand("set c r 0\r", AOK);
 	if (!sendCommand("open\r", "*OPEN*", timeout)) {
 		sendCommand("close\r");
 		clear();
@@ -286,8 +289,8 @@ boolean WiFly::commandMode()
 		return true;
 
 	if (!ask("$$$", "CMD")) {
-		if (!ask("\r", "ERR")) {
-			DBG("Failed to enter command mode\r\n");
+		if (!ask("\r", ERR)) {
+			DBG("Failed: command mode\r\n");
 			return false;
 		}
 	}
@@ -299,8 +302,8 @@ boolean WiFly::dataMode()
 {
 	if (command_mode) {
 		if (!ask("exit\r", "EXIT")) {
-			if (ask("\r", "ERR")) {
-				DBG("Failed to enter data mode\r\n");
+			if (ask("\r", ERR)) {
+				DBG("Failed: data mode\r\n");
 				return false;
 			}
 		}

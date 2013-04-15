@@ -151,7 +151,9 @@ jsmnerr_t jsmn_parse(jsmn_parser *parser, const char *js, jsmntok_t *tokens,
 			case '{': case '[':
 				token = jsmn_alloc_token(parser, tokens, num_tokens);
 				if (token == NULL)
+				{
 					return JSMN_ERROR_NOMEM;
+				}
 				if (parser->toksuper != -1) {
 					tokens[parser->toksuper].size++;
 #ifdef JSMN_PARENT_LINKS

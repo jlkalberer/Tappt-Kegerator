@@ -3,7 +3,7 @@
 #include "MemoryFree.h"
 
 
-#define Pour "/api/pour"
+#define PourResource "/api/pour"
 
 // The kegerator communication key.
 #define KegeratorCommunicationKey "Kegerator-Communication-Key"
@@ -12,12 +12,14 @@ RestClient::RestClient(WiFly& wifly, const char* uri)
 	: client(wifly)
 {
 	this->uri = uri;
-	this->currentResponse = NULL;
-	this->token_list = NULL;
+	//this->currentResponse = NULL;
+	this->token_list = create_token_list(9);
 }
 
 void RestClient::Setup(const char* resource, const char* kegeratorKey, const char* authToken)
 {
+	this->client.stop();
+
 	this->client.beginRequest();
 	int connectionStatus = this->client.post(uri, resource);
 	if (connectionStatus < 0) 
@@ -40,6 +42,7 @@ void RestClient::GetJson()
 	// Something went crazy
 	if (code < 0)
 	{
+		DBG("ERR1");
 		return;
 	}
 	
@@ -61,14 +64,13 @@ void RestClient::GetJson()
 
 	if (this->currentResponse != NULL)
 	{
-		delete [] currentResponse;
-		release_token_list(this->token_list);
+		this->Cleanup();
 	}
 
 	contentLength++;
 
-	this->currentResponse = new uint8_t[contentLength];
-	memset((void*)currentResponse, '\0', contentLength);  // Get rid of any garbage so this will be read correctly
+	//this->currentResponse = new uint8_t[contentLength];
+	memset((void*)currentResponse, '\0', 300);  // Get rid of any garbage so this will be read correctly
 	int i = 0;
 
 	this->client.read(currentResponse, contentLength);
@@ -76,53 +78,109 @@ void RestClient::GetJson()
 	DBG((char*)currentResponse);
 
 	// do some json magic 
-	token_list = create_token_list(9);
-	int tokenOutput = json_to_token_list((char*)currentResponse, token_list);
+	int tokenOutput = json_to_token_list((char*)currentResponse, this->token_list);
 	
+	DBG("\r\nToken Output");
+	DBG(tokenOutput);
+
 	char m[] = "Message";
-	char * out = json_get_value(token_list, m);
+	char * out = json_get_value(this->token_list, m);
 
 	if (out != NULL) 
 	{
-		delete [] currentResponse;
-		currentResponse = NULL;
-		release_token_list(this->token_list);
-
-		this->token_list = NULL;
+		this->Cleanup();
 	}
+}
+
+void RestClient::Cleanup()
+{
+	return; 
+	/*
+	if (this->currentResponse == NULL)
+	{
+		return;
+	}
+
+	delete [] currentResponse;
+	currentResponse = NULL;
+	*/
+	//release_token_list(this->token_list);
+	//this->token_list = NULL;
 }
 
 PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
 {
 	PourInfo info;
 
-	this->Setup(Pour, kegeratorKey, authToken);
+	this->Setup(PourResource, kegeratorKey, authToken);
 	this->client.sendHeader("Content-Length", 0);
 	this->client.endRequest();
 
 	this->GetJson();
 
-	if (this->token_list == NULL)
+	if (this->token_list->count == 0)
 	{
 		return info;
 	}
 
 	char* temp = NULL;
 	
-	temp = json_get_value(this->token_list, "AvailableOunces");
+	char availableOunces[] = "AvailableOuncesI";
+	temp = json_get_value(this->token_list, availableOunces);
 	if (temp != NULL)
 	{
-		info.AvailableOunces = atof(temp);
+		info.AvailableOunces = atoi(temp);
 	}
 
-	info.PourKey = json_get_value(this->token_list, "PourKey");
-	DBG(info.PourKey);
-
-	temp = json_get_value(this->token_list, "UniqueID");
+	char uniqueID[] = "UniqueID";
+	temp = json_get_value(this->token_list, uniqueID);
 	if (temp != NULL)
 	{
 		info.UniqueID = atoi(temp);
 	}
+	
+	char pourKey[] = "PourKey";
+	info.PourKey = json_get_value(this->token_list, pourKey);
+	
+	DBG("\r\nPour Key:");
+	DBG(info.PourKey);
 
 	return info;
+}
+#define JSON1 "{\"AvailableOuncesI\":"
+#define JSON2 ",\"PourKey\":\""
+#define JSON3 "\",\"UniqueID\":"
+#define JSON4 ",\"PouredOuncesI\":"
+#define JSON5 "}"
+
+bool RestClient::Pour(const char* kegeratorKey, const char* authToken, PourInfo& info)
+{
+	this->Setup(PourResource, kegeratorKey, authToken);
+	
+	char buff[10];
+	this->client.write((uint8_t*)JSON1, strlen(JSON1));
+	itoa(info.AvailableOunces, buff, 10);
+	this->client.write((uint8_t*)buff, strlen(buff));
+	this->client.write((uint8_t*)JSON2, strlen(JSON2));
+	this->client.write((uint8_t*)info.PourKey, strlen(info.PourKey));
+	this->client.write((uint8_t*)JSON3, strlen(JSON3));
+	itoa(info.UniqueID, buff, 10);
+	this->client.write((uint8_t*)buff, strlen(buff));
+	this->client.write((uint8_t*)JSON4, strlen(JSON4));
+	itoa(info.PouredOunces, buff, 10);
+	this->client.write((uint8_t*)buff, strlen(buff));
+	this->client.write((uint8_t*)JSON5, strlen(JSON5));
+
+	this->client.endRequest();
+
+	this->GetJson();
+
+	if (this->token_list == NULL)
+	{
+		return false;
+	}
+
+	DBG("Success");
+
+	return true;
 }

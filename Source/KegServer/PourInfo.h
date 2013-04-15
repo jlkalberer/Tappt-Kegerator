@@ -5,16 +5,16 @@
 struct PourInfo
 {
     // Gets or sets the available ounces the user can pour.
-    float AvailableOunces;
+    int AvailableOunces;
 
     // Gets or sets the pour key.
     const char* PourKey;
 
     // Gets or sets the unique id. This is generated simply for verifying the pour key.
-    int UniqueID;
+    unsigned int UniqueID;
 
     // Gets or sets the poured ounces.
-    float PouredOunces;
+    unsigned int PouredOunces;
 };
 
 #endif

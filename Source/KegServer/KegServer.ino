@@ -37,11 +37,11 @@ void setup()
 
 	while (1) {
 		if (wifly.join(SSID, PASSWORD, AUTH)) {
-			Serial.println("Succeed to join " SSID);
+			//Serial.println("Succeed to join " SSID);
 			wifly.clear();
 			break;
 		} else {
-			Serial.println("Failed to join " SSID);
+			//Serial.println("Failed to join " SSID);
 			delay(1000);
 		}
 	}
@@ -52,7 +52,14 @@ void setup()
 void loop()
 {
 	RestClient r(wifly, "192.168.1.122");
-	r.Validate(KegeratorKey, AuthCookie);
+	
+	Memory();
+
+	PourInfo p = r.Validate(KegeratorKey, AuthCookie);
+
+	p.PouredOunces = 12 * 1000;
+
+	r.Pour(KegeratorKey, AuthCookie, p);
 
 	while(1) {}
 }

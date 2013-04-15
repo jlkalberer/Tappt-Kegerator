@@ -57,8 +57,8 @@ void HttpClient::resetState()
 
 void HttpClient::stop()
 {
-  //iClient->stop();
-  resetState();
+	iClient->reset();
+	resetState();
 }
 
 void HttpClient::beginRequest()
