@@ -45,8 +45,9 @@ char* json_get_value(token_list_t *token_list, char *key) {
 
 	/* Token 0 is the JSMN_OBJECT representing entire structure. */
 	/* Since we expect Key/Value Pairs, the following (without checking key_token->type==JSMN_KEY) is sufficient. */
-	for (int i=1; i < token_list->count; i+=2) {
+	for (int i=1; i < token_list->length; i+=2) {
 		key_token = &tokens[i];
+		
 		if (strcmp(key,key_token->string)==0) {
 			return (tokens+(i+1))->string;
 		}
