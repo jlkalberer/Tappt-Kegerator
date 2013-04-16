@@ -8,7 +8,7 @@ struct PourInfo
     int AvailableOunces;
 
     // Gets or sets the pour key.
-    const char* PourKey;
+    char* PourKey;
 
     // Gets or sets the unique id. This is generated simply for verifying the pour key.
     unsigned int UniqueID;

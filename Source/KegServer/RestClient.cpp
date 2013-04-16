@@ -7,6 +7,7 @@
 
 // The kegerator communication key.
 #define KegeratorCommunicationKey "Kegerator-Communication-Key"
+#define CONTENT_LENGTH "Content-Length"
 
 RestClient::RestClient(WiFly& wifly, const char* uri)
 	: client(wifly)
@@ -28,6 +29,7 @@ void RestClient::Setup(const char* resource, const char* kegeratorKey, const cha
 		DBG(connectionStatus);
 		return;
 	}
+	this->client.sendHeader("Content-type: application/json");
 	this->client.sendHeader(KegeratorCommunicationKey, kegeratorKey);
 	this->client.sendHeader("Cookie", authToken);
 
@@ -76,13 +78,11 @@ void RestClient::GetJson()
 	this->client.read(currentResponse, contentLength);
 	
 	DBG((char*)currentResponse);
+	DBG("\r\n\r\n");
 
 	// do some json magic 
 	int tokenOutput = json_to_token_list((char*)currentResponse, this->token_list);
 	
-	DBG("\r\nToken Output");
-	DBG(tokenOutput);
-
 	char m[] = "Message";
 	char * out = json_get_value(this->token_list, m);
 
@@ -113,7 +113,7 @@ PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
 	PourInfo info;
 
 	this->Setup(PourResource, kegeratorKey, authToken);
-	this->client.sendHeader("Content-Length", 0);
+	this->client.sendHeader(CONTENT_LENGTH, 0);
 	this->client.endRequest();
 
 	this->GetJson();
@@ -142,9 +142,6 @@ PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
 	char pourKey[] = "PourKey";
 	info.PourKey = json_get_value(this->token_list, pourKey);
 	
-	DBG("\r\nPour Key:");
-	DBG(info.PourKey);
-
 	return info;
 }
 #define JSON1 "{\"AvailableOuncesI\":"
@@ -155,9 +152,21 @@ PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
 
 bool RestClient::Pour(const char* kegeratorKey, const char* authToken, PourInfo& info)
 {
-	this->Setup(PourResource, kegeratorKey, authToken);
-	
+	int contentLength = strlen(JSON1) + strlen(JSON2) + strlen(JSON3) + strlen(JSON4) + strlen(JSON5) + strlen(info.PourKey);
+
 	char buff[10];
+	
+	// do this calculation... kinda sucks but best way to only use the buffer once
+	itoa(info.AvailableOunces, buff, 10);
+	contentLength += strlen(buff);
+	itoa(info.UniqueID, buff, 10);
+	contentLength += strlen(buff);
+	itoa(info.PouredOunces, buff, 10);
+	contentLength += strlen(buff);
+	
+	this->Setup(PourResource, kegeratorKey, authToken);
+	this->client.sendHeader(CONTENT_LENGTH, contentLength);
+
 	this->client.write((uint8_t*)JSON1, strlen(JSON1));
 	itoa(info.AvailableOunces, buff, 10);
 	this->client.write((uint8_t*)buff, strlen(buff));

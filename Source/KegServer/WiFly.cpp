@@ -54,6 +54,7 @@ size_t WiFly::println(void)
 
 boolean WiFly::reset()
 {
+	sendCommand("close\r");
 	return sendCommand("factory R\r", "Defaults");
 }
 

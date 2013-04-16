@@ -57,7 +57,7 @@ void loop()
 
 	PourInfo p = r.Validate(KegeratorKey, AuthCookie);
 
-	p.PouredOunces = 12 * 1000;
+	p.PouredOunces = 12 * 10;
 
 	r.Pour(KegeratorKey, AuthCookie, p);
 

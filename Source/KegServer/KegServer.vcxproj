@@ -82,6 +82,7 @@
     </ClInclude>
     <ClInclude Include="jsmn.h" />
     <ClInclude Include="json_arduino.h" />
+    <ClInclude Include="MemoryFree.h" />
     <ClInclude Include="PourInfo.h" />
     <ClInclude Include="RestClient.h" />
     <ClInclude Include="Visual Micro\.KegServer.vsarduino.h" />
@@ -94,6 +95,7 @@
     <ClCompile Include="HTTPClient.cpp" />
     <ClCompile Include="jsmn.cpp" />
     <ClCompile Include="json_arduino.cpp" />
+    <ClCompile Include="MemoryFree.cpp" />
     <ClCompile Include="RestClient.cpp" />
     <ClCompile Include="WiFly.cpp" />
   </ItemGroup>
