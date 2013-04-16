@@ -77,7 +77,7 @@ void RestClient::GetJson()
 
 	this->client.read(currentResponse, contentLength);
 	
-	DBG((char*)currentResponse);
+	Serial.println((char*)currentResponse);
 	DBG("\r\n\r\n");
 
 	// do some json magic 
@@ -140,8 +140,13 @@ PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
 	}
 	
 	char pourKey[] = "PourKey";
-	info.PourKey = json_get_value(this->token_list, pourKey);
-	
+	temp = json_get_value(this->token_list, pourKey);
+	if (temp != NULL)
+	{
+		info.PourKey = temp;
+		Serial.println("FOUND");
+	}
+
 	return info;
 }
 #define JSON1 "{\"AvailableOuncesI\":"
