@@ -31,10 +31,7 @@ void RestClient::Setup(const char* resource, const char* kegeratorKey, const cha
 	}
 	this->client.sendHeader("Content-type: application/json");
 	this->client.sendHeader(KegeratorCommunicationKey, kegeratorKey);
-	this->client.sendHeader("Cookie", authToken);
-
-	//this->client.write((uint8_t*)"Cookie: .ASPXAUTH=", 18);
-	//this->client.write((uint8_t*)authToken, strlen(authToken));
+	this->client.sendHeader("Kegerator-Authorization-Key", authToken);
 }
 
 void RestClient::GetJson()
@@ -161,7 +158,7 @@ bool RestClient::Pour(const char* kegeratorKey, const char* authToken, PourInfo&
 
 	char buff[10];
 	
-	// do this calculation... kinda sucks but best way to only use the buffer once
+	// do this calculation... kinda sucks but best way to only use the buffer once and save memory
 	itoa(info.AvailableOunces, buff, 10);
 	contentLength += strlen(buff);
 	itoa(info.UniqueID, buff, 10);

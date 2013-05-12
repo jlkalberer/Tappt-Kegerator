@@ -39,6 +39,15 @@
     <ClCompile Include="WiFly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MemoryFree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PN532.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SNEP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="b64.h">
@@ -66,6 +75,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WiFly.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryFree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PN532.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SNEP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
