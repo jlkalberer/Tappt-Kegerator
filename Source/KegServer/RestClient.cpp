@@ -13,7 +13,7 @@ RestClient::RestClient(WiFly& wifly, const char* uri)
 	: client(wifly)
 {
 	this->uri = uri;
-	//this->currentResponse = NULL;
+	this->currentResponse = NULL;
 	this->token_list = create_token_list(9);
 }
 
@@ -68,8 +68,8 @@ void RestClient::GetJson()
 
 	contentLength++;
 
-	//this->currentResponse = new uint8_t[contentLength];
-	memset((void*)currentResponse, '\0', 300);  // Get rid of any garbage so this will be read correctly
+	this->currentResponse = new uint8_t[contentLength];
+	memset((void*)currentResponse, '\0', contentLength);  // Get rid of any garbage so this will be read correctly
 	int i = 0;
 
 	this->client.read(currentResponse, contentLength);
@@ -82,27 +82,6 @@ void RestClient::GetJson()
 	
 	char m[] = "Message";
 	char * out = json_get_value(this->token_list, m);
-
-	if (out != NULL) 
-	{
-		this->Cleanup();
-	}
-}
-
-void RestClient::Cleanup()
-{
-	return; 
-	/*
-	if (this->currentResponse == NULL)
-	{
-		return;
-	}
-
-	delete [] currentResponse;
-	currentResponse = NULL;
-	*/
-	//release_token_list(this->token_list);
-	//this->token_list = NULL;
 }
 
 PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
@@ -143,6 +122,8 @@ PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
 		info.PourKey = temp;
 		Serial.println("FOUND");
 	}
+
+	this->Cleanup();
 
 	return info;
 }
@@ -192,6 +173,38 @@ bool RestClient::Pour(const char* kegeratorKey, const char* authToken, PourInfo&
 	}
 
 	DBG("Success");
+	
+	this->Cleanup();
 
 	return true;
+}
+
+
+void RestClient::Cleanup()
+{
+	if (this->currentResponse == NULL)
+	{
+		return;
+	}
+
+	delete [] currentResponse;
+	currentResponse = NULL;
+	//release_token_list(this->token_list);
+	//this->token_list = NULL;
+}
+
+
+RestClient::~RestClient()
+{
+	if (this->currentResponse != NULL)
+	{
+		delete [] currentResponse;
+		currentResponse = NULL;
+	}
+
+	if (this->token_list != NULL)
+	{
+		release_token_list(this->token_list);
+		this->token_list = NULL;
+	}
 }

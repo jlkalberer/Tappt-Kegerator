@@ -21,6 +21,11 @@ public:
 	*	Used to send the pour to the server.
 	**/
 	bool Pour(const char* kegeratorKey, const char* authToken, PourInfo& info);
+	
+	/**
+	* DCTOR
+	**/
+	~RestClient();
 private:
 	/**
 	*	Setup the initial request by setting common values.
@@ -36,7 +41,7 @@ private:
 
 	HttpClient client;
 	const char* uri;
-	uint8_t currentResponse[300];
+	uint8_t *currentResponse;
 	token_list_t *token_list;
 };
 

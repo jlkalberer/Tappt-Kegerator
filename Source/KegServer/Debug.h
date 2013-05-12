@@ -4,7 +4,7 @@
 
 #include "MemoryFree.h"
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #define DBG(message)    Serial.print(message)
@@ -14,7 +14,11 @@
 #define Memory() DBG("\r\nFree Memory: "); DBG(freeMemory());DBG("\r\n");
 #else
 #define DBG(message)
-#define Memory()
+#define DBGB(message, base)
+#define DBGL(message)
+#define DBGBL(message, base)
+//#define Memory()
+#define Memory() DBG("\r\nFree Memory: "); Serial.println(freeMemory());
 #endif // DEBUG
 
 #endif // __DEBUG_H__

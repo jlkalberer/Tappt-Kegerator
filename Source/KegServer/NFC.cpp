@@ -35,30 +35,31 @@ uint8_t* NFC::Read()
 	rxNDEFMessagePtr = &rxNDEFMessage[0];
 
 	memset((void*)rxNDEFMessage, '\0', sizeof(rxNDEFMessage));
-
+	
 	rxResult = snep.rxNDEFPayload(rxNDEFMessagePtr);
-
+	
 	if (rxResult == SEND_COMMAND_RX_TIMEOUT_ERROR)
 	{
 		DBGL("rxNDEFPayload() timeout");
-		rxNDEFMessagePtr = (uint8_t*)NULL;
+		rxNDEFMessagePtr = NULL;
 	} 
 	else if (IS_ERROR(rxResult)) 
 	{
 		DBGL("rxNDEFPlayload() failed");
-		rxNDEFMessagePtr = (uint8_t*)NULL;
+		rxNDEFMessagePtr = NULL;
 	}
 	else if (RESULT_OK(rxResult))
 	{
 		NdefMessage *message = new NdefMessage(rxNDEFMessagePtr, rxResult);
+		
 		int length = message->getRecordCount();
 
-		DBG("NDEF record: ");
-		DBGL(length);
+		Serial.print("NDEF record: ");
+		Serial.println(length);
 		
 		if (length <= 0)
 		{
-			return (uint8_t*)NULL;
+			return NULL;
 		}
 		
 		NdefRecord record = message->getRecord(0);
@@ -70,8 +71,6 @@ uint8_t* NFC::Read()
 			return (uint8_t*)NULL;
 		}
 
-		record.print();
-
 		record.getPayload(rxNDEFMessage);
 
 		// Remove the quotes
@@ -79,6 +78,10 @@ uint8_t* NFC::Read()
 		rxNDEFMessage[length - 1] = '\0';
 
 		delete message;
+	}
+	else
+	{
+		DBGL("Error...");
 	}
 
 	return rxNDEFMessagePtr;

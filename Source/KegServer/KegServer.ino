@@ -57,7 +57,7 @@ void setup()
 
 void loop()
 {
-	//Memory();
+	Memory();
 	
 	char* message = (char*)nfc.Read();
 
@@ -66,18 +66,23 @@ void loop()
 		DBGL("No DATA");
 		return;
 	}
+	Memory();
 
-	DBGL(message);
-
-	/*
+	Serial.println(message);
+	
 	RestClient r(wifly, "192.168.1.122");
-
+	
+	// Sleep for a second so they don't authorize twice.
+	delay(1000);
+	
 	PourInfo p = r.Validate(KegeratorKey, message);
 
 	if (p.UniqueID == 0)
 	{
 		return;
 	}
+	/*
+	Serial.println("WOOO");
 
 	p.PouredOunces = 12 * 10;
 
