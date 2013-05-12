@@ -11,6 +11,7 @@
 #include <SNEP.h>
 #include <NdefMessage.h>
 
+
 #include "WiFly.h"
 #include "RestClient.h"
 #include "NFC.h"
@@ -29,23 +30,22 @@ const int kNetworkTimeout = 30*1000;
 const int kNetworkDelay = 1000;
 
 WiFly wifly(2, 3);
-
 NFC nfc;
 
 void setup()
 {
 	// initialize serial communications at 9600 bps:
-	Serial.begin(115200); 
-
+	Serial.begin(9600); 
+	
 	wifly.reset();
 
 	while (1) {
 		if (wifly.join(SSID, PASSWORD, AUTH)) {
-			//Serial.println("Succeed to join " SSID);
+			DBGL("Succeed to join " SSID);
 			wifly.clear();
 			break;
 		} else {
-			//Serial.println("Failed to join " SSID);
+			DBGL("Failed to join " SSID);
 			delay(1000);
 		}
 	}
@@ -57,7 +57,7 @@ void setup()
 
 void loop()
 {
-	Memory();
+	//Memory();
 	
 	char* message = (char*)nfc.Read();
 
@@ -69,12 +69,18 @@ void loop()
 
 	DBGL(message);
 
+	/*
 	RestClient r(wifly, "192.168.1.122");
 
-
 	PourInfo p = r.Validate(KegeratorKey, message);
+
+	if (p.UniqueID == 0)
+	{
+		return;
+	}
 
 	p.PouredOunces = 12 * 10;
 
 	r.Pour(KegeratorKey, message, p);
+	*/
 }

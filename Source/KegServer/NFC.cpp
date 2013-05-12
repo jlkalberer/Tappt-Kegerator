@@ -70,6 +70,8 @@ uint8_t* NFC::Read()
 			return (uint8_t*)NULL;
 		}
 
+		record.print();
+
 		record.getPayload(rxNDEFMessage);
 
 		// Remove the quotes
