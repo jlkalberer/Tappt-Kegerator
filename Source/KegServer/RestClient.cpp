@@ -8,13 +8,14 @@
 // The kegerator communication key.
 #define KegeratorCommunicationKey "Kegerator-Communication-Key"
 #define CONTENT_LENGTH "Content-Length"
+#define CONTENT_TYPE "Content-type: text/plain"
 
 RestClient::RestClient(WiFly& wifly, const char* uri)
 	: client(wifly)
 {
 	this->uri = uri;
 	this->currentResponse = NULL;
-	this->token_list = create_token_list(9);
+	this->pourInfo = new PourInfo();
 }
 
 void RestClient::Setup(const char* resource, const char* kegeratorKey, const char* authToken)
@@ -29,35 +30,46 @@ void RestClient::Setup(const char* resource, const char* kegeratorKey, const cha
 		DBG(connectionStatus);
 		return;
 	}
-	this->client.sendHeader("Content-type: application/json");
+	this->client.sendHeader(CONTENT_TYPE);
 	this->client.sendHeader(KegeratorCommunicationKey, kegeratorKey);
 	this->client.sendHeader("Kegerator-Authorization-Key", authToken);
 }
 
-void RestClient::GetJson()
+void RestClient::GetResponse()
 {
 	int code = this->client.responseStatusCode();
+	this->pourInfo->PourKey = NULL;
+	this->contentLength = 0;
 
 	// Something went crazy
 	if (code < 0)
 	{
-		DBG("ERR1");
+		Serial.println("ERR1");
 		return;
 	}
 	
+	if (code > 299)
+	{
+		this->Cleanup();
+		Serial.println("ERR_RESPONSE");
+		return;
+	}
+
 	// Skip the headers -- we don't really care about this
 	int headerValue = this->client.skipResponseHeaders();
 
 	if (headerValue < 0)
 	{
+		Serial.println("Header?");
 		return;
 	}
 
-	int contentLength = this->client.contentLength();
+	this->contentLength = this->client.contentLength();
 
 	// Something went horribly wrong here..
 	if (contentLength <= 0)
 	{
+		Serial.println("WTF?");
 		return;
 	}
 
@@ -67,115 +79,48 @@ void RestClient::GetJson()
 	}
 
 	contentLength++;
-
-	this->currentResponse = new uint8_t[contentLength];
-	memset((void*)currentResponse, '\0', contentLength);  // Get rid of any garbage so this will be read correctly
+	Serial.println("DO STUFF");
+	this->currentResponse = new uint8_t[this->contentLength];
+	memset((void*)currentResponse, '\0', this->contentLength);  // Get rid of any garbage so this will be read correctly
 	int i = 0;
 
-	this->client.read(currentResponse, contentLength);
-	
-	Serial.println((char*)currentResponse);
-	DBG("\r\n\r\n");
+	this->client.read(currentResponse, this->contentLength);
 
-	// do some json magic 
-	int tokenOutput = json_to_token_list((char*)currentResponse, this->token_list);
-	
-	char m[] = "Message";
-	char * out = json_get_value(this->token_list, m);
+	this->pourInfo->PourKey = (char*)this->currentResponse;
 }
 
-PourInfo& RestClient::Validate(const char* kegeratorKey, const char* authToken)
+PourInfo* RestClient::Validate(const char* kegeratorKey, const char* authToken)
 {
-	PourInfo info;
-
 	this->Setup(PourResource, kegeratorKey, authToken);
 	this->client.sendHeader(CONTENT_LENGTH, 0);
 	this->client.endRequest();
 
-	this->GetJson();
-
-	if (this->token_list->count == 0)
-	{
-		return info;
-	}
-
-	char* temp = NULL;
+	this->GetResponse();
 	
-	char availableOunces[] = "AvailableOuncesI";
-	temp = json_get_value(this->token_list, availableOunces);
-	if (temp != NULL)
-	{
-		info.AvailableOunces = atoi(temp);
-	}
+	Serial.print("PK ");
+	Serial.println(this->pourInfo->PourKey);
 
-	char uniqueID[] = "UniqueID";
-	temp = json_get_value(this->token_list, uniqueID);
-	if (temp != NULL)
-	{
-		info.UniqueID = atoi(temp);
-	}
-	
-	char pourKey[] = "PourKey";
-	temp = json_get_value(this->token_list, pourKey);
-	if (temp != NULL)
-	{
-		info.PourKey = temp;
-		Serial.println("FOUND");
-	}
-
-	this->Cleanup();
-
-	return info;
+	return this->pourInfo;
 }
-#define JSON1 "{\"AvailableOuncesI\":"
-#define JSON2 ",\"PourKey\":\""
-#define JSON3 "\",\"UniqueID\":"
-#define JSON4 ",\"PouredOuncesI\":"
-#define JSON5 "}"
-
-bool RestClient::Pour(const char* kegeratorKey, const char* authToken, PourInfo& info)
+bool RestClient::Pour(const char* kegeratorKey, const char* authToken, PourInfo* info)
 {
-	int contentLength = strlen(JSON1) + strlen(JSON2) + strlen(JSON3) + strlen(JSON4) + strlen(JSON5) + strlen(info.PourKey);
-
-	char buff[10];
-	
-	// do this calculation... kinda sucks but best way to only use the buffer once and save memory
-	itoa(info.AvailableOunces, buff, 10);
-	contentLength += strlen(buff);
-	itoa(info.UniqueID, buff, 10);
-	contentLength += strlen(buff);
-	itoa(info.PouredOunces, buff, 10);
-	contentLength += strlen(buff);
-	
 	this->Setup(PourResource, kegeratorKey, authToken);
-	this->client.sendHeader(CONTENT_LENGTH, contentLength);
 
-	this->client.write((uint8_t*)JSON1, strlen(JSON1));
-	itoa(info.AvailableOunces, buff, 10);
-	this->client.write((uint8_t*)buff, strlen(buff));
-	this->client.write((uint8_t*)JSON2, strlen(JSON2));
-	this->client.write((uint8_t*)info.PourKey, strlen(info.PourKey));
-	this->client.write((uint8_t*)JSON3, strlen(JSON3));
-	itoa(info.UniqueID, buff, 10);
-	this->client.write((uint8_t*)buff, strlen(buff));
-	this->client.write((uint8_t*)JSON4, strlen(JSON4));
-	itoa(info.PouredOunces, buff, 10);
-	this->client.write((uint8_t*)buff, strlen(buff));
-	this->client.write((uint8_t*)JSON5, strlen(JSON5));
+	char buffer[10];
+	memset((void*)buffer, '\0', 10);
+	itoa(info->PouredOunces, buffer, 10);
+	int length = strlen(buffer) + this->contentLength + 1; 
 
+	this->client.sendHeader(CONTENT_LENGTH, length);
+
+	this->client.write((uint8_t*)buffer, strlen(buffer));
+	this->client.write((uint8_t*)":", 1);
+	this->client.write(this->currentResponse, this->contentLength);
+	
 	this->client.endRequest();
 
-	this->GetJson();
-
-	if (this->token_list == NULL)
-	{
-		return false;
-	}
-
-	DBG("Success");
-	
 	this->Cleanup();
-
+	
 	return true;
 }
 
@@ -189,8 +134,6 @@ void RestClient::Cleanup()
 
 	delete [] currentResponse;
 	currentResponse = NULL;
-	//release_token_list(this->token_list);
-	//this->token_list = NULL;
 }
 
 
@@ -200,11 +143,5 @@ RestClient::~RestClient()
 	{
 		delete [] currentResponse;
 		currentResponse = NULL;
-	}
-
-	if (this->token_list != NULL)
-	{
-		release_token_list(this->token_list);
-		this->token_list = NULL;
 	}
 }

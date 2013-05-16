@@ -42,10 +42,7 @@
     <ClCompile Include="MemoryFree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PN532.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SNEP.cpp">
+    <ClCompile Include="NFC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,10 +77,7 @@
     <ClInclude Include="MemoryFree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PN532.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SNEP.h">
+    <ClInclude Include="NFC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

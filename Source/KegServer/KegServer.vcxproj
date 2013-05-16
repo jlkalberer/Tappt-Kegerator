@@ -43,7 +43,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Dev\arduino-1.0.4\hardware\arduino\cores\arduino;C:\Dev\arduino-1.0.4\hardware\arduino\variants\standard;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial\utility;C:\Dev\arduino-1.0.4\libraries\SPI;C:\Dev\arduino-1.0.4\libraries\SPI\utility;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Dev\arduino-1.0.4\hardware\arduino\cores\arduino;C:\Dev\arduino-1.0.4\hardware\arduino\variants\standard;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial;C:\Dev\arduino-1.0.4\libraries\SoftwareSerial\utility;C:\Dev\arduino-1.0.4\libraries\NFC;C:\Dev\arduino-1.0.4\libraries\NFC\utility;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\include\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\avr\;c:\dev\arduino-1.0.4\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>C:\Dev\Mine\Tappt-KegServer\Source\KegServer\Visual Micro\.KegServer.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>ARDUINO=104;__AVR_ATmega328P__;F_CPU=16000000L;__AVR__;__cplusplus;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -83,10 +83,9 @@
     <ClInclude Include="jsmn.h" />
     <ClInclude Include="json_arduino.h" />
     <ClInclude Include="MemoryFree.h" />
-    <ClInclude Include="PN532.h" />
+    <ClInclude Include="NFC.h" />
     <ClInclude Include="PourInfo.h" />
     <ClInclude Include="RestClient.h" />
-    <ClInclude Include="SNEP.h" />
     <ClInclude Include="Visual Micro\.KegServer.vsarduino.h" />
     <ClInclude Include="WiFly.h">
       <FileType>CppCode</FileType>
@@ -98,9 +97,8 @@
     <ClCompile Include="jsmn.cpp" />
     <ClCompile Include="json_arduino.cpp" />
     <ClCompile Include="MemoryFree.cpp" />
-    <ClCompile Include="PN532.cpp" />
+    <ClCompile Include="NFC.cpp" />
     <ClCompile Include="RestClient.cpp" />
-    <ClCompile Include="SNEP.cpp" />
     <ClCompile Include="WiFly.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

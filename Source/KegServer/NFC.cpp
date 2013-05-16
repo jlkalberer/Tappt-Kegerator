@@ -54,9 +54,6 @@ uint8_t* NFC::Read()
 		
 		int length = message->getRecordCount();
 
-		Serial.print("NDEF record: ");
-		Serial.println(length);
-		
 		if (length <= 0)
 		{
 			return NULL;
@@ -65,6 +62,9 @@ uint8_t* NFC::Read()
 		NdefRecord record = message->getRecord(0);
 
 		length = record.getPayloadLength();
+
+		Serial.print("L ");
+		Serial.println(length);
 
 		if (length <= 0)
 		{

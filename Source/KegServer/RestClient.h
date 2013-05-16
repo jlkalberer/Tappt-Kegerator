@@ -2,7 +2,6 @@
 #define REST_CLIENT_H
 
 #include "HTTPClient.h"
-#include "json_arduino.h"
 #include "PourInfo.h"
 
 class RestClient 
@@ -15,12 +14,12 @@ public:
 	/**
 	*	Used to validate that the user can actually perform the pour.
 	**/
-	PourInfo& Validate(const char* kegeratorKey, const char* authToken);
+	PourInfo* Validate(const char* kegeratorKey, const char* authToken);
 	
 	/**
 	*	Used to send the pour to the server.
 	**/
-	bool Pour(const char* kegeratorKey, const char* authToken, PourInfo& info);
+	bool Pour(const char* kegeratorKey, const char* authToken, PourInfo* info);
 	
 	/**
 	* DCTOR
@@ -32,17 +31,15 @@ private:
 	**/
 	void Setup(const char* resource, const char* kegeratorKey, const char* authToken);
 
-	/**
-	*	Get the JSON values from the request
-	**/
-	void GetJson();
+	void GetResponse();
 
 	void Cleanup();
 
 	HttpClient client;
 	const char* uri;
 	uint8_t *currentResponse;
-	token_list_t *token_list;
+	int contentLength;
+	PourInfo *pourInfo;
 };
 
 #endif

@@ -21,8 +21,10 @@
 #define PASSWORD       "bitchhunter"
 #define AUTH      WIFLY_AUTH_WPA2_PSK
 
-#define LOGGING 1
+//#define LOGGING 1
 #define KegeratorKey "Foobar 123"
+
+#define MAX_NDEF_RECORDS 2
 
 // Number of milliseconds to wait without receiving any data before we give up
 const int kNetworkTimeout = 30*1000;
@@ -31,12 +33,15 @@ const int kNetworkDelay = 1000;
 
 WiFly wifly(2, 3);
 NFC nfc;
+RestClient r(wifly, "192.168.1.122");
 
 void setup()
 {
 	// initialize serial communications at 9600 bps:
 	Serial.begin(9600); 
 	
+	Memory();
+
 	wifly.reset();
 
 	while (1) {
@@ -63,29 +68,23 @@ void loop()
 
 	if(message == NULL)
 	{
-		DBGL("No DATA");
+		Serial.println("No DATA");
 		return;
 	}
 	Memory();
 
 	Serial.println(message);
 	
-	RestClient r(wifly, "192.168.1.122");
-	
 	// Sleep for a second so they don't authorize twice.
 	delay(1000);
 	
-	PourInfo p = r.Validate(KegeratorKey, message);
+	PourInfo* p = r.Validate(KegeratorKey, message);
 
-	if (p.UniqueID == 0)
+	if (p == NULL)
 	{
 		return;
 	}
-	/*
-	Serial.println("WOOO");
-
-	p.PouredOunces = 12 * 10;
-
+	
+	p->PouredOunces = 12 * 10;
 	r.Pour(KegeratorKey, message, p);
-	*/
 }
