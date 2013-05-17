@@ -68,12 +68,12 @@ void loop()
 
 	if(message == NULL)
 	{
-		Serial.println("No DATA");
+		DBGL("No DATA");
 		return;
 	}
 	Memory();
 
-	Serial.println(message);
+	DBGL(message);
 	
 	// Sleep for a second so they don't authorize twice.
 	delay(1000);

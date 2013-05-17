@@ -44,14 +44,14 @@ void RestClient::GetResponse()
 	// Something went crazy
 	if (code < 0)
 	{
-		Serial.println("ERR1");
+		DBGL("ERR1");
 		return;
 	}
 	
 	if (code > 299)
 	{
 		this->Cleanup();
-		Serial.println("ERR_RESPONSE");
+		DBGL("ERR_RESPONSE");
 		return;
 	}
 
@@ -60,7 +60,7 @@ void RestClient::GetResponse()
 
 	if (headerValue < 0)
 	{
-		Serial.println("Header?");
+		DBGL("Header?");
 		return;
 	}
 
@@ -69,7 +69,7 @@ void RestClient::GetResponse()
 	// Something went horribly wrong here..
 	if (contentLength <= 0)
 	{
-		Serial.println("WTF?");
+		DBGL("No content length");
 		return;
 	}
 
@@ -79,7 +79,6 @@ void RestClient::GetResponse()
 	}
 
 	contentLength++;
-	Serial.println("DO STUFF");
 	this->currentResponse = new uint8_t[this->contentLength];
 	memset((void*)currentResponse, '\0', this->contentLength);  // Get rid of any garbage so this will be read correctly
 	int i = 0;
@@ -97,9 +96,6 @@ PourInfo* RestClient::Validate(const char* kegeratorKey, const char* authToken)
 
 	this->GetResponse();
 	
-	Serial.print("PK ");
-	Serial.println(this->pourInfo->PourKey);
-
 	return this->pourInfo;
 }
 bool RestClient::Pour(const char* kegeratorKey, const char* authToken, PourInfo* info)
