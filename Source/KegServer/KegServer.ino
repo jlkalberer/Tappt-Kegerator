@@ -71,6 +71,7 @@ void loop()
 		DBGL("No DATA");
 		return;
 	}
+	/*
 	Memory();
 
 	DBGL(message);
@@ -87,4 +88,5 @@ void loop()
 	
 	p->PouredOunces = 12 * 10;
 	r.Pour(KegeratorKey, message, p);
+	*/
 }
