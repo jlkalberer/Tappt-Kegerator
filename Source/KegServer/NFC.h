@@ -18,7 +18,13 @@
 // NDEF messages it shall never be released
 #define MAX_PKT_HEADER_SIZE  50
 #define MAX_PKT_PAYLOAD_SIZE 100
-#define PACKET_SIZE 150
+#define PACKET_SIZE 70
+
+enum NFCState
+{
+	ReadCard,
+	ReadPhone
+};
 
 class NFC
 {
@@ -40,6 +46,8 @@ private:
 	PN532 nfc;
 	NFCLinkLayer linkLayer;
 	SNEP snep;
+
+	NFCState state;
 };
 
 #endif

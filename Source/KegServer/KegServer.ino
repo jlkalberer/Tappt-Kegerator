@@ -33,7 +33,7 @@ const int kNetworkDelay = 1000;
 
 WiFly wifly(2, 3);
 NFC nfc;
-RestClient r(wifly, "192.168.1.122");
+RestClient r(wifly, "192.168.1.139");
 
 void setup()
 {
@@ -71,14 +71,14 @@ void loop()
 		DBGL("No DATA");
 		return;
 	}
-	/*
+	
 	Memory();
 
 	DBGL(message);
 	
 	// Sleep for a second so they don't authorize twice.
 	delay(1000);
-	
+	/*
 	PourInfo* p = r.Validate(KegeratorKey, message);
 
 	if (p == NULL)

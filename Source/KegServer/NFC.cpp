@@ -1,7 +1,10 @@
 #include "NFC.h"
 
+#define BLOCK_SIZE 16
+
 NFC::NFC() : nfc(SCK, MISO, MOSI, SS) , linkLayer(&nfc), snep(&linkLayer)
 {
+	this->state = ReadPhone;
 }
 
 void NFC::Setup()
@@ -27,174 +30,204 @@ void NFC::Setup()
 
 uint8_t* NFC::Read()
 {
-	uint8_t success;
-  uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
-  uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
-    
-  // Wait for an ISO14443A type cards (Mifare, etc.).  When one is found
-  // 'uid' will be populated with the UID, and uidLength will indicate
-  // if the uid is 4 bytes (Mifare Classic) or 7 bytes (Mifare Ultralight)
-  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
-  
-  if (success) {
-    // Display some basic information about the card
-    Serial.println("Found an ISO14443A card");
-    Serial.print("  UID Length: ");Serial.print(uidLength, DEC);Serial.println(" bytes");
-    Serial.print("  UID Value: ");
-    Serial.println("");
-    
-    if (uidLength == 4)
-    {
-      // We probably have a Mifare Classic card ... 
-      Serial.println("Seems to be a Mifare Classic card (4 byte UID)");
+	if (this->state == ReadCard)
+	{
+		this->state = ReadPhone;
 
-      // Now we need to try to authenticate it for read/write access
-      // Try with the factory default KeyA: 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF
-      Serial.println("Trying to authenticate block 4 with default KEYA value");
-      //uint8_t keya[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-      //uint8_t keya[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-	  uint8_t keya[6] = {(byte)0xD3,(byte)0xF7,(byte)0xD3,(byte)0xF7,(byte)0xD3,(byte)0xF7};
-	  // Start with block 4 (the first block of sector 1) since sector 0
-	  // contains the manufacturer data and it's probably better just
-	  // to leave it alone unless you know what you're doing
-	  int key = 12;
-	  
-      success = nfc.mifareclassic_AuthenticateBlock(uid, uidLength, key, 0, keya);
-	  
-      if (success)
-      {
-        Serial.println("Sector 1 (Blocks 4..7) has been authenticated");
-        uint8_t data[16];
+		uint8_t success;
+		uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
+		uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
 
-        // If you want to write something to block 4 to test with, uncomment
-		// the following line and this text should be read back in a minute
-        // data = { 'a', 'd', 'a', 'f', 'r', 'u', 'i', 't', '.', 'c', 'o', 'm', 0, 0, 0, 0};
-        // success = nfc.mifareclassic_WriteDataBlock (4, data);
+		// Wait for an ISO14443A type cards (Mifare, etc.).  When one is found
+		// 'uid' will be populated with the UID, and uidLength will indicate
+		// if the uid is 4 bytes (Mifare Classic) or 7 bytes (Mifare Ultralight)
+		success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
 
-		// When reading the message in block 4 
-		//	04:05 is the content-type length;
-		//	04:06 is the length of the content
+		if (success) {
+			// Display some basic information about the card
+			DBGL("Found an ISO14443A card");
+			DBG("  UID Length: ");DBG(uidLength);DBGL(" bytes");
+			DBG("  UID Value: ");
+			DBGL("");
 
-		// 1. get the content type length and content length
-		// 2. validate content type
-		// 3. get message only by and use the content length 
-		// 7. Skip block 7 as it is just holding some garbage :)
-		// 8. Block 8 has no header info :D
-
-		int end = key + 4;
-		for (key; key < end; key++)
-		{
-			// Try to read the contents of block 4
-			success = nfc.mifareclassic_ReadDataBlock(key, data);
-
-			if (success)
+			if (uidLength == 4)
 			{
-			  // Data seems to have been read ... spit it out
-			  
-			 // nfc.PrintHexChar(data, 16);
-			  for (int i = 0; i < 16; i++) 
-			  {
-				Serial.print(data[i], 16);
-				Serial.print(":");
-			  }
+				// We probably have a Mifare Classic card ... 
+				DBGL("Seems to be a Mifare Classic card (4 byte UID)");
 
-			  // Wait a bit before reading the card again
+				// Now we need to try to authenticate it for read/write access
+				// Try with the factory default KeyA: 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF
+				DBGL("Trying to authenticate block 4 with default KEYA value");
+				uint8_t keya[6] = {(byte)0xD3,(byte)0xF7,(byte)0xD3,(byte)0xF7,(byte)0xD3,(byte)0xF7};
+				// Start with block 4 (the first block of sector 1) since sector 0
+				// contains the manufacturer data and it's probably better just
+				// to leave it alone unless you know what you're doing
+
+				int currentBlock = 4;
+				uint8_t data[BLOCK_SIZE];
+				uint8_t end = currentBlock + 8;
+				uint8_t headerLength = 0;
+				uint8_t contentLength = 0;
+				uint8_t position = 0;
+
+				for (currentBlock; currentBlock < end; currentBlock++)
+				{
+					if (currentBlock % 4 == 3)
+					{
+						continue;
+					}
+
+					if (currentBlock % 4 == 0) 
+					{
+						success = nfc.mifareclassic_AuthenticateBlock(uid, uidLength, currentBlock, 0, keya);
+					}
+
+					if (success)
+					{
+						// Try to read the contents of block 4
+						success = nfc.mifareclassic_ReadDataBlock(currentBlock, data);
+
+						if (success)
+						{
+							// do some validation to make sure this card is readable and get lengths of the data.
+							// Here is a resource on the card http://learn.adafruit.com/adafruit-pn532-rfid-nfc/ndef
+							if (currentBlock == 4)
+							{
+								// 0x03 means that it is reading an NDEF Message.
+								if (data[2] != 0x03)
+								{
+									return NULL;
+								}
+
+								// This is how the chip get's written by android.
+								headerLength = data[5];
+								contentLength = data[6];
+
+								uint8_t size = 8;
+								memcpy(this->rxNDEFMessage, &data[7], size);
+								position += size;
+							}
+							else
+							{
+								uint8_t size = BLOCK_SIZE;
+								uint8_t contentLeft = (headerLength + contentLength) - position;
+								if (contentLeft < BLOCK_SIZE)
+								{
+									size = contentLeft;
+								}
+
+								memcpy(&this->rxNDEFMessage[position], data, size);
+								position += BLOCK_SIZE;
+							}
+
+							if (position >= headerLength + contentLength) 
+							{
+								break;
+							}
+						}
+						else
+						{
+							DBGL("Ooops ... unable to read the requested block.  Try another key?");
+						}
+					}
+
+					else
+					{
+						DBGL("Ooops ... authentication failed: Try another key?");
+					}
+				}
+
+				this->rxNDEFMessage[headerLength + contentLength - 2] = '\0';
+				this->rxNDEFMessagePtr = &this->rxNDEFMessage[headerLength];
+				Serial.println((char*)this->rxNDEFMessagePtr);
 			}
-			else
+			else if (uidLength == 7)
 			{
-			  Serial.println("Ooops ... unable to read the requested block.  Try another key?");
+				// We probably have a Mifare Ultralight card ...
+				DBGL("Seems to be a Mifare Ultralight tag (7 byte UID)");
+
+				// Try to read the first general-purpose user page (#4)
+				DBGL("Reading page 4");
+				uint8_t data[32];
+				success = nfc.mifareultralight_ReadPage (4, data);
+				if (success)
+				{
+					// Data seems to have been read ... spit it out
+					Serial.println("");
+
+					// Wait a bit before reading the card again
+					delay(1000);
+				}
+				else
+				{
+					DBGL("Ooops ... unable to read the requested page!?");
+				} 
 			}
 		}
-		delay(1000);
+	}
+	else if (this->state == ReadPhone)
+	{
+		//this->state = ReadCard;
+		DBGL();
+		Serial.println(F("---------------- LOOP ----------------------"));
+		DBGL();
+
+		uint32_t rxResult = GEN_ERROR; 
+		rxNDEFMessagePtr = &rxNDEFMessage[0];
+
+		memset((void*)rxNDEFMessage, '\0', sizeof(rxNDEFMessage));
+
+		rxResult = snep.rxNDEFPayload(rxNDEFMessagePtr);
 		
-      }
-      else
-      {
-        Serial.println("Ooops ... authentication failed: Try another key?");
-      }
-    }
-    
-    if (uidLength == 7)
-    {
-      // We probably have a Mifare Ultralight card ...
-      Serial.println("Seems to be a Mifare Ultralight tag (7 byte UID)");
+		Serial.println(rxResult);
 
-      // Try to read the first general-purpose user page (#4)
-      Serial.println("Reading page 4");
-      uint8_t data[32];
-      success = nfc.mifareultralight_ReadPage (4, data);
-      if (success)
-      {
-        // Data seems to have been read ... spit it out
-        Serial.println("");
+		if (rxResult == SEND_COMMAND_RX_TIMEOUT_ERROR)
+		{
+			Serial.println("..rxNDEFPayload() timeout");
+			rxNDEFMessagePtr = NULL;
+		} 
+		else if (IS_ERROR(rxResult)) 
+		{
+			Serial.println("rxNDEFPlayload() failed");
+			rxNDEFMessagePtr = NULL;
+		}
+		else if (RESULT_OK(rxResult))
+		{
+			NdefMessage *message = new NdefMessage(rxNDEFMessagePtr, rxResult);
 
-        // Wait a bit before reading the card again
-        delay(1000);
-      }
-      else
-      {
-        Serial.println("Ooops ... unable to read the requested page!?");
-      } 
-    }
-  }
+			int length = message->getRecordCount();
+
+			if (length <= 0)
+			{
+				Serial.println("BLEH");
+				return NULL;
+			}
+
+			NdefRecord record = message->getRecord(0);
+
+			length = record.getPayloadLength();
+
+			Serial.print("L ");
+			Serial.println(length);
+
+			if (length <= 0)
+			{
+				return (uint8_t*)NULL;
+			}
+
+			record.getPayload(rxNDEFMessage);
+
+			// Remove the quotes
+			rxNDEFMessagePtr = &rxNDEFMessage[1];
+			rxNDEFMessage[length - 1] = '\0';
+
+			delete message;
+		}
+		else
+		{
+			DBGL("Error...");
+		}
+
+		return rxNDEFMessagePtr;
+	}
 }
-/*{
-	DBGL();
-	DBGL(F("---------------- LOOP ----------------------"));
-	DBGL();
-
-	uint32_t rxResult = GEN_ERROR; 
-	rxNDEFMessagePtr = &rxNDEFMessage[0];
-
-	memset((void*)rxNDEFMessage, '\0', sizeof(rxNDEFMessage));
-	
-	rxResult = snep.rxNDEFPayload(rxNDEFMessagePtr);
-	
-	if (rxResult == SEND_COMMAND_RX_TIMEOUT_ERROR)
-	{
-		DBGL("rxNDEFPayload() timeout");
-		rxNDEFMessagePtr = NULL;
-	} 
-	else if (IS_ERROR(rxResult)) 
-	{
-		DBGL("rxNDEFPlayload() failed");
-		rxNDEFMessagePtr = NULL;
-	}
-	else if (RESULT_OK(rxResult))
-	{
-		NdefMessage *message = new NdefMessage(rxNDEFMessagePtr, rxResult);
-		
-		int length = message->getRecordCount();
-
-		if (length <= 0)
-		{
-			return NULL;
-		}
-		
-		NdefRecord record = message->getRecord(0);
-
-		length = record.getPayloadLength();
-
-		DBG("L ");
-		DBGL(length);
-
-		if (length <= 0)
-		{
-			return (uint8_t*)NULL;
-		}
-
-		record.getPayload(rxNDEFMessage);
-
-		// Remove the quotes
-		rxNDEFMessagePtr = &rxNDEFMessage[1];
-		rxNDEFMessage[length - 1] = '\0';
-
-		delete message;
-	}
-	else
-	{
-		DBGL("Error...");
-	}
-
-	return rxNDEFMessagePtr;
-}*/
