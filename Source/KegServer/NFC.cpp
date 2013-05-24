@@ -139,8 +139,9 @@ uint8_t* NFC::Read()
 
 				this->rxNDEFMessage[headerLength + contentLength - 2] = '\0';
 				this->rxNDEFMessagePtr = &this->rxNDEFMessage[headerLength];
-				Serial.println((char*)this->rxNDEFMessagePtr);
 			}
+
+			// TODO - Support Mifare Ultralight
 			else if (uidLength == 7)
 			{
 				// We probably have a Mifare Ultralight card ...
@@ -153,7 +154,7 @@ uint8_t* NFC::Read()
 				if (success)
 				{
 					// Data seems to have been read ... spit it out
-					Serial.println("");
+					this->rxNDEFMessagePtr = NULL;
 
 					// Wait a bit before reading the card again
 					delay(1000);
@@ -167,9 +168,10 @@ uint8_t* NFC::Read()
 	}
 	else if (this->state == ReadPhone)
 	{
-		//this->state = ReadCard;
+		this->state = ReadCard;
+		
 		DBGL();
-		Serial.println(F("---------------- LOOP ----------------------"));
+		DBGL(F("---------------- LOOP ----------------------"));
 		DBGL();
 
 		uint32_t rxResult = GEN_ERROR; 
@@ -178,17 +180,15 @@ uint8_t* NFC::Read()
 		memset((void*)rxNDEFMessage, '\0', sizeof(rxNDEFMessage));
 
 		rxResult = snep.rxNDEFPayload(rxNDEFMessagePtr);
-		
-		Serial.println(rxResult);
 
 		if (rxResult == SEND_COMMAND_RX_TIMEOUT_ERROR)
 		{
-			Serial.println("..rxNDEFPayload() timeout");
+			DBGL("..rxNDEFPayload() timeout");
 			rxNDEFMessagePtr = NULL;
 		} 
 		else if (IS_ERROR(rxResult)) 
 		{
-			Serial.println("rxNDEFPlayload() failed");
+			DBGL("rxNDEFPlayload() failed");
 			rxNDEFMessagePtr = NULL;
 		}
 		else if (RESULT_OK(rxResult))
@@ -199,16 +199,14 @@ uint8_t* NFC::Read()
 
 			if (length <= 0)
 			{
-				Serial.println("BLEH");
+				DBGL("BLEH");
+				this->rxNDEFMessagePtr = NULL;
 				return NULL;
 			}
 
 			NdefRecord record = message->getRecord(0);
 
 			length = record.getPayloadLength();
-
-			Serial.print("L ");
-			Serial.println(length);
 
 			if (length <= 0)
 			{
@@ -226,8 +224,9 @@ uint8_t* NFC::Read()
 		else
 		{
 			DBGL("Error...");
+			this->rxNDEFMessagePtr = NULL;
 		}
-
-		return rxNDEFMessagePtr;
 	}
+
+	return rxNDEFMessagePtr;
 }

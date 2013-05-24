@@ -74,11 +74,11 @@ void loop()
 	
 	Memory();
 
-	DBGL(message);
-	
+	Serial.println(message);
+	return ;
 	// Sleep for a second so they don't authorize twice.
 	delay(1000);
-	/*
+	
 	PourInfo* p = r.Validate(KegeratorKey, message);
 
 	if (p == NULL)
@@ -88,5 +88,4 @@ void loop()
 	
 	p->PouredOunces = 12 * 10;
 	r.Pour(KegeratorKey, message, p);
-	*/
 }
