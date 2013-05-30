@@ -44,6 +44,7 @@ void RestClient::GetResponse()
 	// Something went crazy
 	if (code < 0)
 	{
+		this->Cleanup();
 		DBGL("ERR1");
 		return;
 	}
@@ -90,6 +91,7 @@ void RestClient::GetResponse()
 
 PourInfo* RestClient::Validate(const char* kegeratorKey, const char* authToken)
 {
+	this->pourInfo = NULL;
 	this->Setup(PourResource, kegeratorKey, authToken);
 	this->client.sendHeader(CONTENT_LENGTH, 0);
 	this->client.endRequest();
