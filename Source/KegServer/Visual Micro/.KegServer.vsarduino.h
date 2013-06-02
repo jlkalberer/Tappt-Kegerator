@@ -40,6 +40,8 @@ extern "C" void __cxa_pure_virtual() {}
 #include "C:\Dev\Mine\Tappt-KegServer\Source\KegServer\PourInfo.h"
 #include "C:\Dev\Mine\Tappt-KegServer\Source\KegServer\RestClient.cpp"
 #include "C:\Dev\Mine\Tappt-KegServer\Source\KegServer\RestClient.h"
+#include "C:\Dev\Mine\Tappt-KegServer\Source\KegServer\Temperature.cpp"
+#include "C:\Dev\Mine\Tappt-KegServer\Source\KegServer\Temperature.h"
 #include "C:\Dev\Mine\Tappt-KegServer\Source\KegServer\b64.cpp"
 #include "C:\Dev\Mine\Tappt-KegServer\Source\KegServer\b64.h"
 #include "C:\Dev\Mine\Tappt-KegServer\Source\KegServer\jsmn.cpp"

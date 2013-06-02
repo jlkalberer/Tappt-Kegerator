@@ -36,9 +36,6 @@
     <ClCompile Include="RestClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WiFly.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MemoryFree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,9 +66,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RestClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WiFly.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MemoryFree.h">

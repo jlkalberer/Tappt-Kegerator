@@ -17,6 +17,9 @@
 #include "NFC.h"
 #include "Debug.h"
 
+#include <OneWire.h>
+#include "Temperature.h"
+
 #define SSID      "casanova"
 #define PASSWORD       "bitchhunter"
 #define AUTH      WIFLY_AUTH_WPA2_PSK
@@ -34,6 +37,7 @@ const int kNetworkDelay = 1000;
 WiFly wifly(2, 3);
 NFC nfc;
 RestClient r(wifly, "192.168.1.139");
+Temperature temp(4);
 
 void setup()
 {
@@ -62,7 +66,9 @@ void setup()
 
 void loop()
 {
-	Memory();
+	Serial.print("Temp: ");
+	float t = temp.GetTemperature();
+	Serial.println(t);
 	
 	char* message = (char*)nfc.Read();
 
