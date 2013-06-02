@@ -15,5 +15,4 @@ This is the list of parts:
 * [NSF-Certified Acetal Solenoid Valve, NC, 3/8 NPT Female, 1/4" Quick Disconnect, 12 VDC](http://www.mcmaster.com/nav/enter.asp?partnum=7876K28)
 * [JOHN GUEST MALE CONNECTOR BSPT - 3/8 X 1/4 BSPT](http://www.freshwatersystems.com/p-2341-male-connector-bspt-38-x-14-bspt.aspx)
 * [JOHN GUEST FEMALE ADAPTER NPTF - 3/8 X 1/4 NPTF](http://www.freshwatersystems.com/p-2508-female-adapter-nptf-38-x-14-nptf.aspx)
-
 * [4.7k pull-up resistor](http://www.basicmicro.com/Resistor-47K-Ohm-14-Watt_p_94.html) - Usually buy these in a kit as it's a lot cheaper than this site.
