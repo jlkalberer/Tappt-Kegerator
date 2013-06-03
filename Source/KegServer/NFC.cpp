@@ -30,6 +30,8 @@ void NFC::Setup()
 
 uint8_t* NFC::Read()
 {
+	rxNDEFMessagePtr = NULL;
+
 	if (this->state == ReadCard)
 	{
 		this->state = ReadPhone;

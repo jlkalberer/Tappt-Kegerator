@@ -18,10 +18,10 @@ float Temperature::GetTemperature()
 		return -1000;
 	}
 
-	if ( OneWire::crc8( addr, 7) != addr[7]) {
+	/*if ( OneWire::crc8( addr, 7) != addr[7]) {
 		Serial.println("CRC is not valid!");
 		return -1000;
-	}
+	}*/
 
 	if ( addr[0] != 0x10 && addr[0] != 0x28) {
 		Serial.print("Device is not recognized");

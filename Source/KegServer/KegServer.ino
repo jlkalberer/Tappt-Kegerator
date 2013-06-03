@@ -37,7 +37,6 @@ const int kNetworkDelay = 1000;
 WiFly wifly(2, 3);
 NFC nfc;
 RestClient r(wifly, "192.168.1.139");
-Temperature temp(4);
 
 void setup()
 {
@@ -66,9 +65,8 @@ void setup()
 
 void loop()
 {
-	Serial.print("Temp: ");
-	float t = temp.GetTemperature();
-	Serial.println(t);
+	Memory();
+	ReadTemperature();
 	
 	char* message = (char*)nfc.Read();
 
@@ -82,6 +80,7 @@ void loop()
 
 	Serial.println(message);
 	
+	
 	// Sleep for a second so they don't authorize twice.
 	delay(1000);
 	
@@ -94,4 +93,13 @@ void loop()
 	
 	p->PouredOunces = 12 * 10;
 	r.Pour(KegeratorKey, message, p);
+}
+
+void ReadTemperature()
+{
+	Temperature * temp = new Temperature(4);
+	Serial.print("Temp: ");
+	float t = temp->GetTemperature();
+	Serial.println(t);
+	delete temp;
 }
