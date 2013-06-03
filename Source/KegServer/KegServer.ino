@@ -67,7 +67,7 @@ void loop()
 {
 	Memory();
 	ReadTemperature();
-	
+
 	char* message = (char*)nfc.Read();
 
 	if(message == NULL)
@@ -79,7 +79,6 @@ void loop()
 	Memory();
 
 	Serial.println(message);
-	
 	
 	// Sleep for a second so they don't authorize twice.
 	delay(1000);

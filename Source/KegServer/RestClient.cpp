@@ -91,13 +91,18 @@ void RestClient::GetResponse()
 
 PourInfo* RestClient::Validate(const char* kegeratorKey, const char* authToken)
 {
-	this->pourInfo = NULL;
+	//this->pourInfo = NULL;
 	this->Setup(PourResource, kegeratorKey, authToken);
 	this->client.sendHeader(CONTENT_LENGTH, 0);
 	this->client.endRequest();
 
 	this->GetResponse();
 	
+	if (this->pourInfo->PourKey == NULL) 
+	{
+		return NULL;
+	}
+
 	return this->pourInfo;
 }
 bool RestClient::Pour(const char* kegeratorKey, const char* authToken, PourInfo* info)
