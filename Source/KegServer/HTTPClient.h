@@ -277,6 +277,10 @@ public:
     */
     void sendHeader(const char* aHeader);
 
+	void write(const char* value);
+	void write(int value);
+	void writeln();
+
     /** Send an additional header line.  This is an alternate form of
       sendHeader() which takes the header name and content as separate strings.
       The call will add the ": " to separate the header, so for example, to
@@ -375,6 +379,7 @@ public:
     virtual operator bool() { return bool(iClient); };
     virtual uint32_t httpResponseTimeout() { return iHttpResponseTimeout; };
     virtual void setHttpResponseTimeout(uint32_t timeout) { iHttpResponseTimeout = timeout; };
+    static const char* kContentLengthPrefix;
 protected:
     /** Reset internal state data back to the "just initialised" state
     */
@@ -410,7 +415,6 @@ protected:
     // data before returning HTTP_ERROR_TIMED_OUT (during status code and header
     // processing)
     static const int kHttpResponseTimeout = 30*1000;
-    static const char* kContentLengthPrefix;
     typedef enum {
         eIdle,
         eRequestStarted,

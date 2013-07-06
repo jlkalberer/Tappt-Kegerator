@@ -31,7 +31,7 @@ void NFC::Setup()
 uint8_t* NFC::Read()
 {
 	rxNDEFMessagePtr = NULL;
-
+	
 	if (this->state == ReadCard)
 	{
 		this->state = ReadPhone;
@@ -159,7 +159,7 @@ uint8_t* NFC::Read()
 					this->rxNDEFMessagePtr = NULL;
 
 					// Wait a bit before reading the card again
-					delay(1000);
+					//delay(1000);
 				}
 				else
 				{
@@ -205,7 +205,6 @@ uint8_t* NFC::Read()
 				this->rxNDEFMessagePtr = NULL;
 				return NULL;
 			}
-
 			NdefRecord record = message->getRecord(0);
 
 			length = record.getPayloadLength();
@@ -214,7 +213,6 @@ uint8_t* NFC::Read()
 			{
 				return (uint8_t*)NULL;
 			}
-
 			record.getPayload(rxNDEFMessage);
 
 			// Remove the quotes
@@ -222,6 +220,8 @@ uint8_t* NFC::Read()
 			rxNDEFMessage[length - 1] = '\0';
 
 			delete message;
+
+			Serial.println(*rxNDEFMessagePtr);
 		}
 		else
 		{

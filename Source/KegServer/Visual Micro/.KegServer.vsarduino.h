@@ -1,5 +1,5 @@
 //Board = Arduino Uno
-#define ARDUINO 104
+#define ARDUINO 105
 #define __AVR_ATmega328P__
 #define F_CPU 16000000L
 #define __AVR__
@@ -27,6 +27,7 @@ extern "C" void __cxa_pure_virtual() {}
 //already defined in arduno.h
 //already defined in arduno.h
 void ReadTemperature();
+void flowCounter();
 
 #include "C:\Dev\arduino-1.0.4\hardware\arduino\variants\standard\pins_arduino.h" 
 #include "C:\Dev\arduino-1.0.4\hardware\arduino\cores\arduino\arduino.h"

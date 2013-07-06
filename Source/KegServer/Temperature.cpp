@@ -1,4 +1,5 @@
 #include "Temperature.h"
+#include "Debug.h"
 
 Temperature::Temperature(int pin) 
 	: sensor(pin) 
@@ -24,7 +25,7 @@ float Temperature::GetTemperature()
 	}*/
 
 	if ( addr[0] != 0x10 && addr[0] != 0x28) {
-		Serial.print("Device is not recognized");
+		DBG("Device is not recognized");
 		return -1000;
 	}
 

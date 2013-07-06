@@ -19,7 +19,7 @@ public:
 	/**
 	*	Used to send the pour to the server.
 	**/
-	bool Pour(const char* kegeratorKey, const char* authToken, PourInfo* info);
+	bool Pour(const char* kegeratorKey, PourInfo* info);
 	
 	/**
 	* DCTOR

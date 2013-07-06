@@ -13,6 +13,8 @@
 #include <ctype.h>
 
 #define MAX_HEADERS 10
+#define EMPTY_CHAR '\0'
+#define CARRIAGE '\n'
 
 // Initialize constants
 const char* HttpClient::kUserAgent = "Arduino/2.0";
@@ -210,6 +212,19 @@ void HttpClient::sendHeader(const char* aHeader)
 {
     iClient->println(aHeader);
 }
+void HttpClient::write(const char* aHeader)
+{
+    iClient->print(aHeader);
+}
+void HttpClient::write(int value)
+{
+    iClient->print(value);
+}
+
+void HttpClient::writeln()
+{
+    iClient->println();
+}
 
 void HttpClient::sendHeader(const char* aHeaderName, const char* aHeaderValue)
 {
@@ -237,7 +252,7 @@ void HttpClient::sendBasicAuth(const char* aUser, const char* aPassword)
     // go.
     // In Base64, each 3 bytes of unencoded data become 4 bytes of encoded data
     unsigned char input[3];
-    unsigned char output[5]; // Leave space for a '\0' terminator so we can easily print
+    unsigned char output[5]; // Leave space for a EMPTY_CHAR terminator so we can easily print
     int userLen = strlen(aUser);
     int passwordLen = strlen(aPassword);
     int inputOffset = 0;
@@ -262,7 +277,7 @@ void HttpClient::sendBasicAuth(const char* aUser, const char* aPassword)
             // We've either got to a 3-byte boundary, or we've reached then end
             b64_encode(input, inputOffset, output, 4);
             // NUL-terminate the output string
-            output[4] = '\0';
+            output[4] = EMPTY_CHAR;
             // And write it out
             iClient->print((char*)output);
 // FIXME We might want to fill output with '=' characters if b64_encode doesn't
@@ -301,7 +316,7 @@ int HttpClient::responseStatusCode()
     // Where HTTP-Version is of the form:
     //   HTTP-Version   = "HTTP" "/" 1*DIGIT "." 1*DIGIT
 
-    char c = '\0';
+    char c = EMPTY_CHAR;
     do
     {
         // Make sure the status code is reset, and likewise the state.  This
@@ -315,7 +330,7 @@ int HttpClient::responseStatusCode()
         const char* statusPrefix = "HTTP/*.* ";
         const char* statusPtr = statusPrefix;
         // Whilst we haven't timed out & haven't reached the end of the headers
-        while ((c != '\n') && 
+        while ((c != CARRIAGE) && 
                ( (millis() - timeoutStart) < iHttpResponseTimeout ))
         {
             if (available())
@@ -331,7 +346,7 @@ int HttpClient::responseStatusCode()
                         {
                             // This character matches, just move along
                             statusPtr++;
-                            if (*statusPtr == '\0')
+                            if (*statusPtr == EMPTY_CHAR)
                             {
                                 // We've reached the end of the prefix
                                 iState = eReadingStatusCode;
@@ -372,22 +387,22 @@ int HttpClient::responseStatusCode()
             //    delay(kHttpWaitForDataDelay);
             //}
         }
-        if ( (c == '\n') && (iStatusCode < 200) )
+        if ( (c == CARRIAGE) && (iStatusCode < 200) )
         {
             // We've reached the end of an informational status line
-            c = '\0'; // Clear c so we'll go back into the data reading loop
+            c = EMPTY_CHAR; // Clear c so we'll go back into the data reading loop
         }
     }
     // If we've read a status code successfully but it's informational (1xx)
     // loop back to the start
     while ( (iState == eStatusCodeRead) && (iStatusCode < 200) );
 
-    if ( (c == '\n') && (iState == eStatusCodeRead) )
+    if ( (c == CARRIAGE) && (iState == eStatusCodeRead) )
     {
         // We've read the status-line successfully
         return iStatusCode;
     }
-    else if (c != '\n')
+    else if (c != CARRIAGE)
     {
         // We must've timed out before we reached the end of the line
         return HTTP_ERROR_TIMED_OUT;
@@ -442,7 +457,7 @@ int HttpClient::parseHeaders()
 	int code = this->responseStatusCode();
 
 	char buffer[256];
-	memset(buffer, '\0', 256);
+	memset(buffer, EMPTY_CHAR, 256);
 	int index = 0;
 	int valueIndex = 0;
 	bool lookingForValue = false;
@@ -459,15 +474,15 @@ int HttpClient::parseHeaders()
             char c = readHeader();
 
 			// Magical parsing of headers..
-			if (c == '\n')
+			if (c == CARRIAGE)
 			{
 				Header h;
 				h.Key = new char[valueIndex];
 				h.Value = new char[index - valueIndex];
-				buffer[valueIndex - 1] = '\0';
+				buffer[valueIndex - 1] = EMPTY_CHAR;
 				strcpy(h.Key, buffer);
 				strcpy(h.Value, buffer + valueIndex);
-				memset(buffer, '\0', 256);
+				memset(buffer, EMPTY_CHAR, 256);
 				index = -1;
 				valueIndex = 0;
 				lookingForColon = true;
@@ -602,7 +617,7 @@ int HttpClient::readHeader()
         {
             // This character matches, just move along
             iContentLengthPtr++;
-			if (*iContentLengthPtr == '\0')
+			if (*iContentLengthPtr == EMPTY_CHAR)
             {
                 // We've reached the end of the prefix
                 iState = eReadingContentLength;
@@ -637,7 +652,7 @@ int HttpClient::readHeader()
         }
         break;
     case eLineStartingCRFound:
-        if (c == '\n')
+        if (c == CARRIAGE)
         {
             iState = eReadingBody;
         }
@@ -647,7 +662,7 @@ int HttpClient::readHeader()
         break;
     };
 
-    if ( (c == '\n') && !endOfHeadersReached() )
+    if ( (c == CARRIAGE) && !endOfHeadersReached() )
     {
         // We've got to the end of this line, start processing again
         iState = eStatusCodeRead;

@@ -6,8 +6,7 @@
 #define PourResource "/api/pour"
 
 // The kegerator communication key.
-#define KegeratorCommunicationKey "Kegerator-Communication-Key"
-#define CONTENT_LENGTH "Content-Length"
+#define KegeratorCommunicationKey "TapptAuth"
 #define CONTENT_TYPE "Content-type: text/plain"
 
 RestClient::RestClient(WiFly& wifly, const char* uri)
@@ -32,7 +31,7 @@ void RestClient::Setup(const char* resource, const char* kegeratorKey, const cha
 	}
 	this->client.sendHeader(CONTENT_TYPE);
 	this->client.sendHeader(KegeratorCommunicationKey, kegeratorKey);
-	this->client.sendHeader("Kegerator-Authorization-Key", authToken);
+	this->client.sendHeader("TapptKegAuth", authToken);
 }
 
 void RestClient::GetResponse()
@@ -93,9 +92,11 @@ PourInfo* RestClient::Validate(const char* kegeratorKey, const char* authToken)
 {
 	//this->pourInfo = NULL;
 	this->Setup(PourResource, kegeratorKey, authToken);
-	this->client.sendHeader(CONTENT_LENGTH, 0);
+	this->client.write(HttpClient::kContentLengthPrefix);
+	this->client.write(0);
+	this->client.writeln();
 	this->client.endRequest();
-
+	
 	this->GetResponse();
 	
 	if (this->pourInfo->PourKey == NULL) 
@@ -105,16 +106,18 @@ PourInfo* RestClient::Validate(const char* kegeratorKey, const char* authToken)
 
 	return this->pourInfo;
 }
-bool RestClient::Pour(const char* kegeratorKey, const char* authToken, PourInfo* info)
+bool RestClient::Pour(const char* kegeratorKey, PourInfo* info)
 {
-	this->Setup(PourResource, kegeratorKey, authToken);
+	this->Setup(PourResource, kegeratorKey, (const char*)this->currentResponse);
 
 	char buffer[10];
 	memset((void*)buffer, '\0', 10);
 	itoa(info->PouredOunces, buffer, 10);
 	int length = strlen(buffer) + this->contentLength + 1; 
 
-	this->client.sendHeader(CONTENT_LENGTH, length);
+	this->client.write(HttpClient::kContentLengthPrefix);
+	this->client.write(length);
+	this->client.writeln();
 
 	this->client.write((uint8_t*)buffer, strlen(buffer));
 	this->client.write((uint8_t*)":", 1);
