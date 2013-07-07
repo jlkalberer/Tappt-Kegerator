@@ -123,6 +123,7 @@ void loop()
 			state = POURING;
 			waitCount = 0;
 			digitalWrite(SOLENOID, HIGH);
+			delay(200);
 			attachInterrupt(FLOW, flowCounter, FALLING);
 			
 			message = NULL;
@@ -178,6 +179,8 @@ void loop()
 			r.Pour(KegeratorKey, p);
 
 			state = LISTENING;
+
+			totalPulses = 0;
 
 			delay(2000);
 
