@@ -2,9 +2,9 @@
 
 #define BLOCK_SIZE 16
 
-NFC::NFC() : nfc(SCK, MISO, MOSI, SS) , linkLayer(&nfc), snep(&linkLayer)
+NFC::NFC() : nfc(SS) , linkLayer(&nfc), snep(&linkLayer)
 {
-	this->state = ReadPhone;
+	this->state = ReadCard;
 }
 
 void NFC::Setup()
@@ -34,7 +34,7 @@ uint8_t* NFC::Read()
 	
 	if (this->state == ReadCard)
 	{
-		this->state = ReadPhone;
+		//this->state = ReadPhone;
 
 		uint8_t success;
 		uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
@@ -47,7 +47,7 @@ uint8_t* NFC::Read()
 
 		if (success) {
 			// Display some basic information about the card
-			DBGL("Found an ISO14443A card");
+			Serial.println("Found an ISO14443A card");
 			DBG("  UID Length: ");DBG(uidLength);DBGL(" bytes");
 			DBG("  UID Value: ");
 			DBGL("");
@@ -147,14 +147,17 @@ uint8_t* NFC::Read()
 			else if (uidLength == 7)
 			{
 				// We probably have a Mifare Ultralight card ...
-				DBGL("Seems to be a Mifare Ultralight tag (7 byte UID)");
+				Serial.println("Seems to be a Mifare Ultralight tag (7 byte UID)");
 
 				// Try to read the first general-purpose user page (#4)
 				DBGL("Reading page 4");
+                                for(int i = 0; i < 5; i++)
+                                {
 				uint8_t data[32];
-				success = nfc.mifareultralight_ReadPage (4, data);
+				success = nfc.mifareultralight_ReadPage (i, data);
 				if (success)
 				{
+					Serial.println((char*)data);
 					// Data seems to have been read ... spit it out
 					this->rxNDEFMessagePtr = NULL;
 
@@ -164,10 +167,11 @@ uint8_t* NFC::Read()
 				else
 				{
 					DBGL("Ooops ... unable to read the requested page!?");
-				} 
+				}
+                                }
 			}
 		}
-	}
+	}/*
 	else if (this->state == ReadPhone)
 	{
 		this->state = ReadCard;
@@ -228,7 +232,7 @@ uint8_t* NFC::Read()
 			DBGL("Error...");
 			this->rxNDEFMessagePtr = NULL;
 		}
-	}
+	}*/
 
 	return rxNDEFMessagePtr;
 }

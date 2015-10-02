@@ -20,8 +20,8 @@
 #include <OneWire.h>
 #include "Temperature.h"
 
-#define SSID      "casanova"
-#define PASSWORD       "bitchhunter"
+#define SSID      "da_shiz"
+#define PASSWORD       "longasspassword"
 #define AUTH      WIFLY_AUTH_WPA2_PSK
 
 //#define LOGGING 1
@@ -54,7 +54,7 @@ const int kNetworkDelay = 1000;
 
 WiFly wifly(WIFLY_PIN_1, WIFLY_PIN_2);
 NFC nfc;
-RestClient r(wifly, "192.168.1.144");
+RestClient r(wifly, "192.168.1.113");
 
 byte state, waitCount;
 volatile int flowCount = 0;
@@ -63,7 +63,6 @@ unsigned long time, totalPulses;
 void setup()
 {
 	Serial.begin(9600); 
-
 	// initialize serial communications at 9600 bps:
 	
 	Memory();
